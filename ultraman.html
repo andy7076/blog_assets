@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奥特六兄弟 - Ultraman Brothers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #0f0f2d 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 60px; }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(255,107,107,0.5);
+        }
+        .subtitle { color: #a0a0c0; font-size: 1.1rem; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        .card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-img {
+            width: 200px;
+            height: 250px;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .card-img .img-name {
+            font-size: 1.5rem;
+            z-index: 1;
+        }
+        .card-img .img-name-en {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            z-index: 1;
+            margin-top: 4px;
+        }
+        /* Individual Ultraman gradient backgrounds */
+        .img-zoffy {
+            background: linear-gradient(160deg, #c0392b 0%, #e74c3c 30%, #bdc3c7 60%, #95a5a6 100%);
+        }
+        .hero-image { width: 100%; max-width: 200px; height: 250px; object-fit: cover; border-radius: 12px; display: block; margin: 0 auto 20px; }
+        .img-zoffy::after {
+            content: '★';
+            position: absolute;
+            font-size: 4rem;
+            color: rgba(241, 196, 15, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .img-ultraman {
+            background: linear-gradient(160deg, #e74c3c 0%, #c0392b 30%, #ecf0f1 50%, #bdc3c7 80%, #e74c3c 100%);
+        }
+        .img-seven {
+            background: linear-gradient(160deg, #e74c3c 0%, #c0392b 40%, #e74c3c 70%, #c0392b 100%);
+        }
+        .img-seven::after {
+            content: '⚔';
+            position: absolute;
+            font-size: 3.5rem;
+            color: rgba(255, 255, 255, 0.25);
+            top: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .img-jack {
+            background: linear-gradient(160deg, #922b21 0%, #c0392b 30%, #ecf0f1 55%, #bdc3c7 80%, #922b21 100%);
+        }
+        .img-ace {
+            background: linear-gradient(160deg, #e74c3c 0%, #8e44ad 35%, #ecf0f1 55%, #e74c3c 80%, #8e44ad 100%);
+        }
+        .img-ace::after {
+            content: '▲';
+            position: absolute;
+            font-size: 3rem;
+            color: rgba(142, 68, 173, 0.35);
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .img-taro {
+            background: linear-gradient(160deg, #e74c3c 0%, #c0392b 30%, #ecf0f1 50%, #f39c12 75%, #e74c3c 100%);
+        }
+        .img-taro::after {
+            content: '🔱';
+            position: absolute;
+            font-size: 3rem;
+            color: rgba(243, 156, 18, 0.3);
+            top: 14%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,107,107,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255,107,107,0.3);
+            border-color: rgba(255,107,107,0.5);
+        }
+        .card:hover::before { opacity: 1; }
+        .card-content { position: relative; z-index: 1; }
+        .rank {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .name { font-size: 1.8rem; margin-bottom: 5px; }
+        .name-en { color: #a0a0c0; font-size: 1rem; margin-bottom: 20px; }
+        .feature { color: #d0d0e0; line-height: 1.8; margin-bottom: 20px; }
+        .skill {
+            background: rgba(72,219,251,0.1);
+            border-left: 3px solid #48dbfb;
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0;
+            color: #48dbfb;
+            font-weight: 500;
+        }
+        .skill-label { color: #a0a0c0; font-size: 0.85rem; margin-bottom: 5px; }
+        footer {
+            text-align: center;
+            color: #606080;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 奥特六兄弟</h1>
+            <p class="subtitle">Ultraman Brothers · M78 星云光之国最强战士团</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-zoffy.png' alt='佐菲' class='hero-image'>
+                    <span class="rank">🥇 大哥</span>
+                    <h2 class="name">佐菲</h2>
+                    <p class="name-en">Zoffy</p>
+                    <p class="feature">奥特兄弟的队长，宇宙警备队队长。胸前佩戴星之勋章，实力在兄弟中首屈一指。关键时刻总是挺身而出。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">M87 光线 · 奥特兄弟最强单体光线</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-ultraman.png' alt='初代奥特曼' class='hero-image'>
+                    <span class="rank">🥈 二哥</span>
+                    <h2 class="name">初代奥特曼</h2>
+                    <p class="name-en">Ultraman</p>
+                    <p class="feature">第一位来到地球的奥特战士，银红相间的经典造型。与早田进合体，开创了奥特曼保护地球的先河。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">斯派修姆光线 · 十字形光线</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-seven.png' alt='赛文' class='hero-image'>
+                    <span class="rank">🥉 三哥</span>
+                    <h2 class="name">赛文</h2>
+                    <p class="name-en">Seven</p>
+                    <p class="feature">头部有可拆卸的头镖，红色身体。来自 M78 星云的恒星观测员，人间体是诸星团。智勇双全的战士。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">艾梅利姆光线 · 头镖攻击</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-jack.png' alt='杰克' class='hero-image'>
+                    <span class="rank">🏅 四哥</span>
+                    <h2 class="name">杰克</h2>
+                    <p class="name-en">Jack</p>
+                    <p class="feature">回归的奥特曼，红色更深。拥有奥特手镯，可以变形成各种武器。人间体是乡秀树。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">斯派修姆光线 · 奥特手镯</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-ace.png' alt='艾斯' class='hero-image'>
+                    <span class="rank">🎖️ 五哥</span>
+                    <h2 class="name">艾斯</h2>
+                    <p class="name-en">Ace</p>
+                    <p class="feature">头部有角状突起，光线技能最多。由光之国派来的王牌战士，人间体是北斗星司和南夕子。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">梅塔利姆光线 · 垂直火花</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <img src='https://static.yyfollower.com/ultraman-taro.png' alt='泰罗' class='hero-image'>
+                    <span class="rank">🏆 六弟</span>
+                    <h2 class="name">泰罗</h2>
+                    <p class="name-en">Taro</p>
+                    <p class="feature">奥特之父的亲生儿子，头上有两个奥特之角。奥特兄弟中最年轻，潜力无限。人间体是东光太郎。</p>
+                    <div class="skill-label">⚡ 代表技能</div>
+                    <div class="skill">斯特利姆光线 · 宇宙奇迹光线</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 奥特六兄弟粉丝页 · 致敬经典</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">M78 星云光之国 · 永远守护地球</p>
+        </footer>
+    </div>
+</body>
+</html>

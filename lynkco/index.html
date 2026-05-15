@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>领克07 EM-P 油耗看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        dark: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                background: rgba(15, 23, 42, 0.7);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(99, 102, 241, 0.2);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark min-h-screen text-white p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- 头部 -->
+        <div class="glass rounded-2xl p-6 mb-6 gradient-bg">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">🚗 领克07 EM-P 数据看板</h1>
+            <p class="text-white/80">实时油耗/电耗/续航统计</p>
+        </div>
+
+        <!-- 数据卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass rounded-xl p-5">
+                <p class="text-white/60 text-sm mb-1">当前总里程</p>
+                <p class="text-2xl font-bold" id="total-mileage">12,580 km</p>
+            </div>
+            <div class="glass rounded-xl p-5">
+                <p class="text-white/60 text-sm mb-1">累计省油</p>
+                <p class="text-2xl font-bold text-green-400" id="saved-money">¥2,846</p>
+            </div>
+            <div class="glass rounded-xl p-5">
+                <p class="text-white/60 text-sm mb-1">剩余续航</p>
+                <p class="text-2xl font-bold" id="range">723 km</p>
+            </div>
+            <div class="glass rounded-xl p-5">
+                <p class="text-white/60 text-sm mb-1">平均能耗</p>
+                <p class="text-2xl font-bold" id="avg-consume">4.2 L/100km</p>
+            </div>
+        </div>
+
+        <!-- 图表区 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="glass rounded-xl p-5 h-[350px]">
+                <h3 class="text-lg font-semibold mb-3">近30天油电消耗</h3>
+                <div id="line-chart" class="w-full h-[280px]"></div>
+            </div>
+            <div class="glass rounded-xl p-5 h-[350px]">
+                <h3 class="text-lg font-semibold mb-3">近6个月费用统计</h3>
+                <div id="bar-chart" class="w-full h-[280px]"></div>
+            </div>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="glass rounded-xl p-4 text-center text-white/60 text-sm">
+            数据更新时间: <span id="update-time">2026-04-23 10:30:00</span> | 数据来源: 领克官方API
+        </div>
+    </div>
+
+    <script>
+        // 折线图
+        const lineChart = echarts.init(document.getElementById('line-chart'));
+        const lineOption = {
+            backgroundColor: 'transparent',
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'cross' }
+            },
+            legend: {
+                data: ['油耗(L)', '电耗(kWh)'],
+                textStyle: { color: '#cbd5e1' }
+            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1日','5日','10日','15日','20日','25日','30日'],
+                axisLine: { lineStyle: { color: '#475569' } },
+                axisLabel: { color: '#94a3b8' }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#475569' } },
+                axisLabel: { color: '#94a3b8' },
+                splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.1)' } }
+            },
+            series: [
+                {
+                    name: '油耗(L)',
+                    type: 'line',
+                    smooth: true,
+                    data: [5.2,4.8,3.9,4.5,5.1,3.7,4.2],
+                    itemStyle: { color: '#6366f1' },
+                    areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0, color:'rgba(99,102,241,0.3)'}, {offset:1, color:'rgba(99,102,241,0.05)'}]) }
+                },
+                {
+                    name: '电耗(kWh)',
+                    type: 'line',
+                    smooth: true,
+                    data: [12.5,15.2,18.3,14.7,11.9,17.2,13.5],
+                    itemStyle: { color: '#8b5cf6' },
+                    areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0, color:'rgba(139,92,246,0.3)'}, {offset:1, color:'rgba(139,92,246,0.05)'}]) }
+                }
+            ]
+        };
+        lineChart.setOption(lineOption);
+
+        // 柱状图
+        const barChart = echarts.init(document.getElementById('bar-chart'));
+        const barOption = {
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            legend: {
+                data: ['油费', '电费'],
+                textStyle: { color: '#cbd5e1' }
+            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: ['11月','12月','1月','2月','3月','4月'],
+                axisLine: { lineStyle: { color: '#475569' } },
+                axisLabel: { color: '#94a3b8' }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#475569' } },
+                axisLabel: { color: '#94a3b8' },
+                splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.1)' } }
+            },
+            series: [
+                {
+                    name: '油费',
+                    type: 'bar',
+                    data: [215, 280, 245, 190, 230, 178],
+                    itemStyle: { color: 'rgba(99,102,241,0.8)' },
+                    barWidth: '35%'
+                },
+                {
+                    name: '电费',
+                    type: 'bar',
+                    data: [85, 62, 78, 92, 65, 74],
+                    itemStyle: { color: 'rgba(139,92,246,0.8)' },
+                    barWidth: '35%'
+                }
+            ]
+        };
+        barChart.setOption(barOption);
+
+        // 响应式适配
+        window.addEventListener('resize', () => {
+            lineChart.resize();
+            barChart.resize();
+        });
+
+        // 模拟更新时间
+        document.getElementById('update-time').innerText = new Date().toLocaleString('zh-CN');
+    </script>
+</body>
+</html>

@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>烟雨江南</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --base: #0a0e14;
+      --ink: #121a24;
+      --accent: #4a90a4;
+      --dark: #2d4a5e;
+      --text: #8bafc7;
+      --faint: #1e2832;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--base);
+      color: var(--text);
+      font-family: 'Noto Serif SC', serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* --- Section 1: Hero Canvas --- */
+    #hero-section {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #rain-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Floating mist layers behind canvas */
+    .mist-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(74, 144, 164, 0.08) 0%, transparent 70%);
+      animation: driftMist 30s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes driftMist {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .hero-content {
+      position: absolute;
+      bottom: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-family: 'Zhi Mang Xing', cursive;
+      font-size: 4rem;
+      color: var(--accent);
+      text-shadow: 0 0 40px rgba(74, 144, 164, 0.4);
+      opacity: 0;
+      letter-spacing: 0.5em;
+    }
+
+    .hero-subtitle {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 1.2rem;
+      color: var(--dark);
+      margin-top: 1rem;
+      opacity: 0;
+      letter-spacing: 0.3em;
+    }
+
+    /* Vignette overlay for depth */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 14, 20, 0.9) 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* --- Section 2: Poetry --- */
+    #poetry-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8vh 2rem;
+      background: linear-gradient(180deg, var(--base) 0%, var(--ink) 100%);
+    }
+
+    .poetry-wrapper {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .poetry-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      opacity: 0;
+      letter-spacing: 0.4em;
+    }
+
+    .poetry-content {
+      display: flex;
+      flex-direction: row-reverse; /* Vertical columns go right to left */
+      gap: 3rem;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .poetry-column {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: 'Zhi Mang Xing', cursive;
+      font-size: clamp(1.5rem, 3vw, 2.8rem);
+      color: var(--text);
+      line-height: 2.2em;
+      letter-spacing: 0.15em;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .poetry-column .char {
+      display: inline-block;
+      opacity: 0;
+    }
+
+    /* Decorative seal stamp */
+    .seal-stamp {
+      position: absolute;
+      bottom: -2rem;
+      right: -2rem;
+      width: 80px;
+      height: 80px;
+      border: 3px solid rgba(200, 50, 50, 0.6);
+      color: rgba(200, 50, 50, 0.6);
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-15deg);
+      opacity: 0;
+    }
+
+    /* --- Section 3: Scroll Painting --- */
+    #scroll-section {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(180deg, var(--ink) 0%, var(--base) 100%);
+      overflow: hidden;
+    }
+
+    .scroll-label {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .scroll-label h2 {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 2rem;
+      color: var(--accent);
+      letter-spacing: 0.3em;
+      opacity: 0;
+    }
+
+    .scroll-label p {
+      font-size: 0.9rem;
+      color: var(--dark);
+      margin-top: 0.5rem;
+      letter-spacing: 0.2em;
+      opacity: 0;
+    }
+
+    /* The infinite horizontal canvas */
+    .scroll-canvas-wrap {
+      position: relative;
+      height: 70vh;
+      min-height: 500px;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .scroll-canvas-wrap:active {
+      cursor: grabbing;
+    }
+
+    #scroll-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Scroll hint */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 0.9rem;
+      color: var(--dark);
+      opacity: 0.6;
+      animation: hintPulse 2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes hintPulse {
+      0%, 100% {
+        opacity: 0.4;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--dark);
+      border-radius: 3px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      .poetry-content {
+        gap: 1.5rem;
+      }
+      .poetry-column {
+        font-size: 1.3rem;
+        line-height: 2em;
+      }
+      .seal-stamp {
+        width: 50px;
+        height: 50px;
+        font-size: 0.6rem;
+        bottom: -1rem;
+        right: -1rem;
+      }
+      .scroll-canvas-wrap {
+        height: 50vh;
+        min-height: 350px;
+      }
+    }
+
+    /* Fade-in utility */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1), transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .fade-in-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== SECTION 1: RAIN HERO ==================== -->
+  <section id="hero-section">
+    <!-- Background mist -->
+    <div class="mist-layer"></div>
+    <div class="mist-layer" style="animation-delay: -15s; opacity: 0.5; top: 30%;"></div>
+
+    <!-- Main rain canvas -->
+    <canvas id="rain-canvas"></canvas>
+
+    <!-- Vignette overlay -->
+    <div class="vignette"></div>
+
+    <!-- Hero text -->
+    <div class="hero-content">
+      <h1 class="hero-title" id="heroTitle">烟雨江南</h1>
+      <p class="hero-subtitle" id="heroSubtitle">千里莺啼绿映红，水村山郭酒旗风</p>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 2: POETRY ==================== -->
+  <section id="poetry-section">
+    <div class="poetry-wrapper">
+      <h2 class="poetry-title" id="poetryTitle">江南春 &mdash; 杜牧</h2>
+      <div class="poetry-content" id="poetryContent">
+        <!-- Column 1 (rightmost in visual, first in DOM due to flex-direction: row-reverse) -->
+        <div class="poetry-column" data-line="1">
+          <span class="char">千</span><span class="char">里</span><span class="char">莺</span><span class="char">啼</span><span class="char">绿</span><span class="char">映</span><span class="char">红</span>，
+        </div>
+        <div class="poetry-column" data-line="2">
+          <span class="char">水</span><span class="char">村</span><span class="char">山</span><span class="char">郭</span><span class="char">酒</span><span class="char">旗</span><span class="char">风</span>。
+        </div>
+        <div class="poetry-column" data-line="3">
+          <span class="char">南</span><span class="char">朝</span><span class="char">四</span><span class="char">百</span><span class="char">八</span><span class="char">十</span><span class="char">寺</span>，
+        </div>
+        <div class="poetry-column" data-line="4">
+          <span class="char">多</span><span class="char">少</span><span class="char">楼</span><span class="char">台</span><span class="char">烟</span><span class="char">雨</span><span class="char">中</span>。
+        </div>
+      </div>
+      <!-- Red seal stamp -->
+      <div class="seal-stamp" id="sealStamp">杜牧<br>之印</div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 3: SCROLL PAINTING ==================== -->
+  <section id="scroll-section">
+    <div class="scroll-label fade-in-section">
+      <h2>古镇长卷</h2>
+      <p>横向滑动探索水墨江南</p>
+    </div>
+
+    <div class="scroll-canvas-wrap" id="scrollWrap">
+      <canvas id="scroll-canvas"></canvas>
+      <div class="scroll-hint" id="scrollHint">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>横向滑动或拖拽浏览</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ============================================
+    //  GLOBALS & UTILITIES
+    // ============================================
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const PI = Math.PI;
+
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    // ============================================
+    //  SECTION 1: RAIN CANVAS
+    // ============================================
+    const rainCanvas = document.getElementById('rain-canvas');
+    const rCtx = rainCanvas.getContext('2d');
+    let rW, rH;
+
+    function resizeRain() {
+      rW = rainCanvas.width = window.innerWidth;
+      rH = rainCanvas.height = window.innerHeight;
+    }
+    resizeRain();
+    window.addEventListener('resize', resizeRain);
+
+    // --- Rain System ---
+    const rainCount = window.innerWidth < 768 ? 250 : 600;
+    const raindrops = [];
+    let windX = 0; // Mouse-driven wind offset
+    let targetWindX = 0;
+
+    class Raindrop {
+      constructor() {
+        this.reset();
+        this.y = rand(0, rH); // Start scattered
+      }
+
+      reset() {
+        this.x = rand(-100, rW + 100);
+        this.y = rand(-rH, -20);
+        this.z = rand(0.3, 1); // Depth layer (affects speed & opacity)
+        this.len = rand(15, 40) * this.z;
+        this.speed = rand(6, 14) * this.z;
+        this.opacity = rand(0.15, 0.5) * this.z;
+      }
+
+      update() {
+        this.y += this.speed;
+        this.x += windX * this.z * 0.5; // Wind affects deeper drops more
+
+        // Reset if below screen
+        if (this.y > rH + 50) {
+          this.reset();
+        }
+      }
+
+      draw(ctx) {
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + windX * 0.3, this.y + this.len);
+        ctx.strokeStyle = `rgba(138, 175, 199, ${this.opacity})`;
+        ctx.lineWidth = 1.5 * this.z;
+        ctx.stroke();
+      }
+    }
+
+    for (let i = 0; i < rainCount; i++) {
+      raindrops.push(new Raindrop());
+    }
+
+    // --- Ripple System ---
+    const ripples = [];
+    class Ripple {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.r = 0;
+        this.maxR = rand(30, 80);
+        this.opacity = 0.6;
+        this.speed = rand(0.8, 1.5);
+        this.dead = false;
+      }
+
+      update() {
+        this.r += this.speed;
+        this.opacity -= 0.008;
+        if (this.opacity <= 0) this.dead = true;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(this.x, this.y, this.r, this.r * 0.3, 0, 0, PI * 2);
+        ctx.strokeStyle = `rgba(74, 144, 164, ${this.opacity})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // --- Distant Mountains ---
+    // Procedurally generate mountain silhouettes
+    const mountainLayers = [];
+    function generateMountains() {
+      mountainLayers.length = 0;
+      const layers = 4;
+      for (let l = 0; l < layers; l++) {
+        const points = [];
+        const segCount = 40;
+        const baseH = rH * (0.35 + l * 0.08);
+        const amp = 40 + l * 25;
+        for (let i = 0; i <= segCount; i++) {
+          const px = (i / segCount) * (rW + 200) - 100;
+          // Simple noise-like function
+          const py = baseH + Math.sin(i * 0.5 + l) * amp + Math.sin(i * 1.2 + l * 2) * amp * 0.5;
+          points.push({ x: px, y: py });
+        }
+        mountainLayers.push({
+          points,
+          opacity: 0.08 + l * 0.04,
+          parallax: (l + 1) * 0.3
+        });
+      }
+    }
+    generateMountains();
+
+    // --- Interaction ---
+    rainCanvas.addEventListener('mousemove', (e) => {
+      const nx = (e.clientX / rW) * 2 - 1; // -1 to 1
+      targetWindX = nx * 3;
+    });
+
+    rainCanvas.addEventListener('click', (e) => {
+      ripples.push(new Ripple(e.clientX, e.clientY));
+    });
+
+    // Also allow touch for ripples
+    rainCanvas.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      ripples.push(new Ripple(t.clientX, t.clientY));
+    });
+
+    // --- Main Render Loop ---
+    function drawMountains(ctx) {
+      mountainLayers.forEach((layer, idx) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(layer.points[0].x, rH);
+        layer.points.forEach((p, i) => {
+          const px = p.x - windX * layer.parallax * 5;
+          if (i === 0) ctx.lineTo(px, p.y);
+          else {
+            const prev = layer.points[i - 1];
+            const cx = (prev.x - windX * layer.parallax * 5 + px) / 2;
+            const cy = (prev.y + p.y) / 2;
+            ctx.quadraticCurveTo(prev.x - windX * layer.parallax * 5, prev.y, cx, cy);
+          }
+        });
+        ctx.lineTo(layer.points[layer.points.length - 1].x - windX * layer.parallax * 5, rH);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(45, 74, 94, ${layer.opacity})`;
+        ctx.filter = `blur(${4 - idx}px)`;
+        ctx.fill();
+        ctx.filter = 'none';
+        ctx.restore();
+      });
+    }
+
+    function drawGroundReflection(ctx) {
+      // Subtle ground shimmer
+      const grad = ctx.createLinearGradient(0, rH - 80, 0, rH);
+      grad.addColorStop(0, 'rgba(10, 14, 20, 0)');
+      grad.addColorStop(1, 'rgba(74, 144, 164, 0.08)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, rH - 80, rW, 80);
+    }
+
+    function animateRain() {
+      rCtx.clearRect(0, 0, rW, rH);
+
+      // Smooth wind interpolation
+      windX = lerp(windX, targetWindX, 0.05);
+
+      // Draw distant mountains
+      drawMountains(rCtx);
+
+      // Ground / water reflection
+      drawGroundReflection(rCtx);
+
+      // Update and draw rain
+      raindrops.forEach(drop => {
+        drop.update();
+        drop.draw(rCtx);
+      });
+
+      // Update and draw ripples
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const r = ripples[i];
+        r.update();
+        r.draw(rCtx);
+        if (r.dead) ripples.splice(i, 1);
+      }
+
+      // Occasional random ripple on "ground" (bottom 20% of screen)
+      if (Math.random() < 0.02) {
+        const rx = rand(0, rW);
+        const ry = rand(rH * 0.8, rH);
+        ripples.push(new Ripple(rx, ry));
+      }
+
+      requestAnimationFrame(animateRain);
+    }
+    animateRain();
+
+
+    // ============================================
+    //  SECTION 2: POETRY TYPEWRITER ANIMATION
+    // ============================================
+    const poetryTitle = document.getElementById('poetryTitle');
+    const columns = document.querySelectorAll('.poetry-column');
+    const seal = document.getElementById('sealStamp');
+    let poetryAnimated = false;
+
+    // Function to animate a single column (line) character by character
+    function animateColumn(col, delayStart) {
+      const chars = col.querySelectorAll('.char');
+      col.style.opacity = '1';
+      col.style.transform = 'translateY(0)';
+
+      chars.forEach((ch, i) => {
+        setTimeout(() => {
+          gsap.to(ch, {
+            opacity: 1,
+            duration: 0.4,
+            ease: 'power2.out'
+          });
+        }, delayStart + i * 180); // 180ms per character
+      });
+    }
+
+    // Intersection Observer for poetry section
+    const poetryObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !poetryAnimated) {
+          poetryAnimated = true;
+
+          // Animate title
+          gsap.to(poetryTitle, {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            ease: 'power3.out'
+          });
+
+          // Animate each column sequentially
+          // Order is reversed in DOM due to vertical-rl + row-reverse
+          // But data-line goes 1,2,3,4 (left to right visually)
+          // So we sort by data-line ascending
+          const sortedCols = Array.from(columns).sort((a, b) => {
+            return parseInt(a.dataset.line) - parseInt(b.dataset.line);
+          });
+
+          sortedCols.forEach((col, idx) => {
+            animateColumn(col, 800 + idx * 1400);
+          });
+
+          // Seal stamp appears last
+          setTimeout(() => {
+            gsap.to(seal, {
+              opacity: 1,
+              scale: 1,
+              rotation: -15,
+              duration: 0.6,
+              ease: 'back.out(2)'
+            });
+          }, 800 + 4 * 1400 + 500);
+
+          poetryObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    poetryObserver.observe(document.getElementById('poetry-section'));
+
+
+    // ============================================
+    //  SECTION 3: INFINITE HORIZONTAL SCROLL CANVAS
+    // ============================================
+    const scrollWrap = document.getElementById('scrollWrap');
+    const scrollCanvas = document.getElementById('scroll-canvas');
+    const sCtx = scrollCanvas.getContext('2d');
+    let sW, sH;
+
+    function resizeScroll() {
+      const rect = scrollWrap.getBoundingClientRect();
+      sW = scrollCanvas.width = rect.width;
+      sH = scrollCanvas.height = rect.height;
+    }
+    resizeScroll();
+    window.addEventListener('resize', resizeScroll);
+
+    // --- Procedural Drawing Functions for Scroll Elements ---
+
+    function drawMountainPath(ctx, x, baseY, w, h, color) {
+      ctx.beginPath();
+      ctx.moveTo(x, baseY);
+      ctx.bezierCurveTo(x + w * 0.2, baseY - h * 0.8, x + w * 0.5, baseY - h, x + w * 0.7, baseY - h * 0.6);
+      ctx.bezierCurveTo(x + w * 0.85, baseY - h * 0.4, x + w, baseY - h * 0.7, x + w, baseY);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    function drawWillowTree(ctx, x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      // Trunk
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-5, -40, -2, -80);
+      ctx.quadraticCurveTo(2, -80, 5, -40);
+      ctx.lineTo(8, 0);
+      ctx.closePath();
+      ctx.fillStyle = '#1a2630';
+      ctx.fill();
+
+      // Branches hanging down
+      const branches = 5;
+      for (let i = 0; i < branches; i++) {
+        const bx = -20 + i * 10 + rand(-3, 3);
+        const by = -70 + rand(-10, 5);
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.quadraticCurveTo(bx - 10, by + 40, bx + rand(-5, 5), by + 80);
+        ctx.strokeStyle = 'rgba(30, 50, 40, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Leaves
+        for (let j = 0; j < 8; j++) {
+          const lx = bx + rand(-15, 5);
+          const ly = by + 20 + j * 8;
+          ctx.beginPath();
+          ctx.ellipse(lx, ly, 2, 5, rand(-0.5, 0.5), 0, PI * 2);
+          ctx.fillStyle = `rgba(40, 70, 50, ${rand(0.3, 0.6)})`;
+          ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawStoneBridge(ctx, x, y, w, h) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Bridge body
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(w * 0.5, -h * 1.5, w, 0);
+      ctx.lineTo(w, 15);
+      ctx.quadraticCurveTo(w * 0.5, -h * 1.5 + 15, 0, 15);
+      ctx.closePath();
+      ctx.fillStyle = '#1e2a35';
+      ctx.fill();
+
+      // Reflection
+      ctx.save();
+      ctx.scale(1, -0.4);
+      ctx.translate(0, -15);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(w * 0.5, -h * 1.5, w, 0);
+      ctx.lineTo(w, 15);
+      ctx.quadraticCurveTo(w * 0.5, -h * 1.5 + 15, 0, 15);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(30, 42, 53, 0.2)';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    function drawBoat(ctx, x, y, scale = 1, direction = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale * direction, scale);
+
+      // Hull
+      ctx.beginPath();
+      ctx.moveTo(-30, 0);
+      ctx.quadraticCurveTo(-20, 12, 0, 12);
+      ctx.quadraticCurveTo(20, 12, 30, 0);
+      ctx.lineTo(28, -3);
+      ctx.quadraticCurveTo(0, 5, -28, -3);
+      ctx.closePath();
+      ctx.fillStyle = '#0d131a';
+      ctx.fill();
+      ctx.strokeStyle = '#1a2630';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Canopy
+      ctx.beginPath();
+      ctx.moveTo(-25, -3);
+      ctx.quadraticCurveTo(0, -20, 25, -3);
+      ctx.closePath();
+      ctx.fillStyle = '#161f28';
+      ctx.fill();
+
+      // Pole
+      ctx.beginPath();
+      ctx.moveTo(20, -3);
+      ctx.lineTo(35, 15);
+      ctx.strokeStyle = '#2d4a5e';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Reflection
+      ctx.save();
+      ctx.scale(1, -0.3);
+      ctx.beginPath();
+      ctx.moveTo(-30, 0);
+      ctx.quadraticCurveTo(-20, 12, 0, 12);
+      ctx.quadraticCurveTo(20, 12, 30, 0);
+      ctx.fillStyle = 'rgba(13, 19, 26, 0.2)';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    function drawLantern(ctx, x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      // String
+      ctx.beginPath();
+      ctx.moveTo(0, -30);
+      ctx.lineTo(0, 0);
+      ctx.strokeStyle = '#2d4a5e';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Lantern body
+      ctx.beginPath();
+      ctx.ellipse(0, 12, 10, 14, 0, 0, PI * 2);
+      ctx.fillStyle = '#4a1a1a';
+      ctx.fill();
+      ctx.strokeStyle = '#6a2a2a';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Glow
+      const glow = ctx.createRadialGradient(0, 12, 2, 0, 12, 20);
+      glow.addColorStop(0, 'rgba(200, 100, 50, 0.3)');
+      glow.addColorStop(1, 'rgba(200, 100, 50, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 12, 25, 0, PI * 2);
+      ctx.fill();
+
+      // Top/bottom caps
+      ctx.fillStyle = '#1a0f0f';
+      ctx.fillRect(-6, -2, 12, 3);
+      ctx.fillRect(-6, 22, 12, 3);
+
+      // Tassel
+      ctx.beginPath();
+      ctx.moveTo(0, 25);
+      ctx.lineTo(0, 40);
+      ctx.strokeStyle = '#6a2a2a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawHouse(ctx, x, y, w, h) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Walls (white)
+      ctx.fillStyle = '#c8d4dc';
+      ctx.fillRect(0, 0, w, h);
+
+      // Roof (curved black tiles)
+      ctx.beginPath();
+      ctx.moveTo(-10, 0);
+      ctx.quadraticCurveTo(w * 0.5, -h * 0.4, w + 10, 0);
+      ctx.lineTo(w + 5, -5);
+      ctx.quadraticCurveTo(w * 0.5, -h * 0.4 - 8, -5, -5);
+      ctx.closePath();
+      ctx.fillStyle = '#0a0e14';
+      ctx.fill();
+
+      // Roof edge line
+      ctx.beginPath();
+      ctx.moveTo(-10, 0);
+      ctx.quadraticCurveTo(w * 0.5, -h * 0.4, w + 10, 0);
+      ctx.strokeStyle = '#2d4a5e';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Door/window
+      ctx.fillStyle = '#0a0e14';
+      ctx.fillRect(w * 0.35, h * 0.4, w * 0.3, h * 0.6);
+
+      // Reflection
+      ctx.save();
+      ctx.scale(1, -0.25);
+      ctx.translate(0, -h);
+      ctx.fillStyle = 'rgba(200, 212, 220, 0.1)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // --- Scene Composition ---
+    // The scroll world is wide. We draw it in segments.
+    const SEGMENT_WIDTH = 800;
+    const TOTAL_SEGMENTS = 12; // Total scrollable width
+    const TOTAL_WIDTH = SEGMENT_WIDTH * TOTAL_SEGMENTS;
+
+    // Store all objects for parallax
+    const sceneObjects = [];
+
+    function initScene() {
+      sceneObjects.length = 0;
+
+      for (let seg = 0; seg < TOTAL_SEGMENTS; seg++) {
+        const sx = seg * SEGMENT_WIDTH;
+
+        // Distant mountains (layer 0)
+        const mCount = 2 + Math.floor(rand(0, 2));
+        for (let m = 0; m < mCount; m++) {
+          sceneObjects.push({
+            type: 'mountain',
+            layer:

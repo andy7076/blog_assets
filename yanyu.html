@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>烟雨江南</title>
+<style>
+* {margin:0;padding:0;box-sizing:border-box;}
+body {
+    min-height:100vh;
+    background:linear-gradient(180deg, #e8e4d9 0%, #c4c0b5 100%);
+    font-family:'KaiTi',serif;
+    overflow:hidden;
+}
+/* 雨丝 */
+.rain {
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    pointer-events:none;
+}
+.raindrop {
+    position:absolute;
+    width:1px;height:15px;
+    background:linear-gradient(180deg, transparent 0%, rgba(80,100,110,0.4) 100%);
+    animation:fall linear infinite;
+}
+@keyframes fall {to {transform:translateY(100vh);}}
+/* 内容 */
+.container {
+    position:relative;
+    z-index:2;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:2rem;
+}
+.title {
+    font-size:4rem;
+    color:#2a3a3a;
+    margin-bottom:2rem;
+    letter-spacing:1rem;
+    text-shadow:2px 2px 4px rgba(0,0,0,0.1);
+    opacity:0;
+    animation:fadeIn 2s ease forwards;
+}
+.poem {
+    font-size:1.5rem;
+    color:#4a5a5a;
+    text-align:center;
+    line-height:2;
+    opacity:0;
+    animation:fadeIn 2s ease 1s forwards;
+}
+@keyframes fadeIn {to {opacity:1;}}
+/* 水墨远山 */
+.mountains {
+    position:absolute;
+    bottom:100px;
+    left:0;
+    width:100%;
+    height:200px;
+}
+.mountain {
+    position:absolute;
+    background:linear-gradient(180deg, #6a7a7a 0%, #8a9a9a 100%);
+    border-radius:50% 50% 0 0;
+    opacity:0.5;
+}
+.mountain:nth-child(1) {width:300px;height:180px;left:-50px;bottom:0;}
+.mountain:nth-child(2) {width:400px;height:220px;left:30%;bottom:-20px;opacity:0.4;}
+.mountain:nth-child(3) {width:350px;height:200px;right:-50px;bottom:0;}
+/* 水面 */
+.water {
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:100px;
+    background:linear-gradient(180deg, rgba(80,110,110,0.3) 0%, rgba(60,90,90,0.5) 100%);
+}
+</style>
+</head>
+<body>
+<div class="rain" id="rain"></div>
+<div class="mountains">
+    <div class="mountain"></div>
+    <div class="mountain"></div>
+    <div class="mountain"></div>
+</div>
+<div class="container">
+    <h1 class="title">烟雨江南</h1>
+    <div class="poem">
+        春水碧于天，画船听雨眠<br>
+        南朝四百八十寺，多少楼台烟雨中
+    </div>
+</div>
+<div class="water"></div>
+<script>
+// 生成雨丝
+const rain = document.getElementById('rain');
+for(let i=0; i<80; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'raindrop';
+    drop.style.left = Math.random()*100 + '%';
+    drop.style.animationDuration = (0.6 + Math.random()*0.8) + 's';
+    drop.style.animationDelay = Math.random()*2 + 's';
+    drop.style.opacity = 0.2 + Math.random()*0.3;
+    rain.appendChild(drop);
+}
+</script>
+</body>
+</html>

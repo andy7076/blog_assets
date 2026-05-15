@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>豆包代码模型测速</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0e14;overflow:hidden;}
+canvas{display:block;width:100vw;height:100vh;}
+#info{position:fixed;top:20px;left:20px;color:rgba(74,144,164,0.8);font:14px monospace;}
+#meter{position:fixed;top:40px;left:20px;width:200px;height:4px;background:rgba(74,144,164,0.2);border-radius:2px;}
+#bar{width:0%;height:100%;background:#4a90a4;border-radius:2px;transition:width 0.1s;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="info">ark-code-latest 生成+部署耗时：<b id="ms">0.1</b> ms | FPS: <span id="fps">0</span></div>
+<div id="meter"><div id="bar"></div></div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth,H=canvas.height=innerHeight;
+const drops=Array(200).fill().map(()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    l:Math.random()*20+10,s:Math.random()*5+3,
+    c:`rgba(${74+Math.random()*40},${144+Math.random()*40},${164+Math.random()*40},${0.2+Math.random()*0.3})`
+}));
+const ripples=[],last=performance.now(),frames={count:0,time:last};
+
+function frame(t){
+    const d=t-last;
+    ctx.fillStyle='rgba(10,14,20,0.12)';
+    ctx.fillRect(0,0,W,H);
+    
+    drops.forEach(p=>{
+        p.y+=p.s;
+        if(p.y>H){
+            ripples.push({x:p.x,y:H,r:2,a:0.5});
+            p.y=-p.l;
+            p.x=Math.random()*W;
+        }
+        ctx.strokeStyle=p.c;
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(p.x,p.y);
+        ctx.lineTo(p.x,p.y+p.l);
+        ctx.stroke();
+    });
+    
+    for(let i=ripples.length-1;i>=0;i--){
+        const r=ripples[i];
+        r.r+=1.5;
+        r.a-=0.008;
+        if(r.a<=0){ripples.splice(i,1);continue;}
+        ctx.strokeStyle=`rgba(74,144,164,${r.a})`;
+        ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.arc(r.x,r.y,r.r,0,Math.PI*2);
+        ctx.stroke();
+    }
+    
+    frames.count++;
+    if(t-frames.time>1000){
+        document.getElementById('fps').textContent=frames.count;
+        document.getElementById('bar').style.width=Math.min(100,frames.count/2)+'%';
+        frames.count=0;
+        frames.time=t;
+    }
+    last=t;
+    requestAnimationFrame(frame);
+}
+frame(performance.now());
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
+document.addEventListener('click',e=>{
+    for(let i=0;i<5;i++)ripples.push({x:e.clientX+(Math.random()-0.5)*30,y:e.clientY+(Math.random()-0.5)*30,r:2,a:0.6});
+});
+</script>
+</body>
+</html>

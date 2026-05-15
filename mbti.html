@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 性格测试</title>
+<style>
+* {margin:0;padding:0;box-sizing:border-box;font-family: system-ui, sans-serif;}
+body {background: #f5f7fa; color: #333; line-height: 1.6;}
+.container {max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh;}
+.card {background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);}
+h1 {font-size: 28px; text-align: center; margin-bottom: 20px; color: #2c3e50;}
+.btn {display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s;}
+.btn-primary {background: #3498db; color: white; margin-top: 20px;}
+.btn-primary:hover {background: #2980b9;}
+.btn-secondary {background: #ecf0f1; color: #333; margin-top: 10px;}
+.btn-secondary:hover {background: #bdc3c7;}
+.progress {width: 100%; height: 8px; background: #ecf0f1; border-radius: 4px; margin-bottom: 20px; overflow: hidden;}
+.progress-bar {height: 100%; background: #3498db; width: 0%; transition: width 0.3s;}
+.question {font-size: 18px; font-weight: 500; margin-bottom: 24px; line-height: 1.8;}
+.options {display: flex; flex-direction: column; gap: 12px;}
+.option {padding: 14px; border: 2px solid #ecf0f1; border-radius: 8px; cursor: pointer; transition: all 0.2s;}
+.option:hover {border-color: #3498db; background: #f8fafc;}
+.option.selected {border-color: #3498db; background: #eaf5ff;}
+.result-type {font-size: 48px; font-weight: bold; text-align: center; color: #3498db; margin: 20px 0;}
+.result-name {font-size: 24px; text-align: center; font-weight: 500; margin-bottom: 20px;}
+.result-desc {font-size: 16px; line-height: 1.8; margin-bottom: 20px;}
+.hidden {display: none;}
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- 首页 -->
+    <div id="home" class="card">
+        <h1>MBTI 性格测试</h1>
+        <p style="margin-bottom: 20px;">本测试共20题，大约需要5分钟完成，完成后将得到你的16型人格结果。</p>
+        <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+    </div>
+
+    <!-- 答题页 -->
+    <div id="test" class="card hidden">
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>上一题</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+        </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="result" class="card hidden">
+        <h1>你的性格类型是</h1>
+        <div class="result-type" id="resultType"></div>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-desc" id="resultDesc"></div>
+        <button class="btn btn-primary" onclick="restart()">重新测试</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+    {text: "你更倾向于从社交活动中获得能量，而不是独处", dimension: "E", reverse: false},
+    {text: "你经常花时间探索不切实际、天马行空的想法", dimension: "N", reverse: false},
+    {text: "你更注重逻辑和事实，而不是他人的感受", dimension: "T", reverse: false},
+    {text: "你喜欢提前做好计划，而不是随机应变", dimension: "J", reverse: false},
+    {text: "聚会后你会感到精力充沛，想继续玩", dimension: "E", reverse: false},
+    {text: "你更关注现实中存在的事物，而不是抽象的想法", dimension: "S", reverse: false},
+    {text: "争吵时你更在意对错，而不是对方的情绪", dimension: "T", reverse: false},
+    {text: "你喜欢把生活安排得井井有条", dimension: "J", reverse: false},
+    {text: "独处的时候你感到更放松", dimension: "I", reverse: false},
+    {text: "你经常会有各种新奇的创意和想法", dimension: "N", reverse: false},
+    {text: "你很容易察觉到他人的情绪变化", dimension: "F", reverse: false},
+    {text: "你更喜欢随性的生活，不喜欢太多约束", dimension: "P", reverse: false},
+    {text: "你在人群中很容易成为焦点", dimension: "E", reverse: false},
+    {text: "你更相信自己的直觉和灵感", dimension: "N", reverse: false},
+    {text: "做决定时你更倾向于考虑他人的感受", dimension: "F", reverse: false},
+    {text: "你总是拖延到最后一刻才完成任务", dimension: "P", reverse: false},
+    {text: "你更喜欢和少数几个亲密的朋友来往", dimension: "I", reverse: false},
+    {text: "你更看重经验和实际证据", dimension: "S", reverse: false},
+    {text: "你认为公平比人情更重要", dimension: "T", reverse: false},
+    {text: "你总是提前做好准备，应对各种可能的情况", dimension: "J", reverse: false},
+];
+
+const personalities = {
+    "INTJ": {name: "建筑师", desc: "富有想象力和战略性思维，对自己的想法和计划充满信心，擅长规划长远目标，独立且果断，追求高效和创新。"},
+    "INTP": {name: "逻辑学家", desc: "聪明好奇，热衷于理论和抽象思考，擅长分析和解决复杂问题，追求知识和真理，不拘小节，思想开放。"},
+    "ENTJ": {name: "指挥官", desc: "天生的领导者，果断高效，擅长组织和管理，目标明确，执行力强，敢于挑战困难和权威。"},
+    "ENTP": {name: "辩论家", desc: "聪明机智，反应灵敏，喜欢挑战和辩论，擅长从不同角度看问题，富有创意和好奇心。"},
+    "INFJ": {name: "提倡者", desc: "富有洞察力和理想主义，关心他人，有强烈的价值观和使命感，善于理解他人的需求和感受。"},
+    "INFP": {name: "调停者", desc: "理想主义，忠诚善良，重视内心的价值观，富有同情心和创造力，追求和谐和意义。"},
+    "ENFJ": {name: "教育家", desc: "热情负责，善于沟通和引导，能够激发他人的潜力，关心他人的成长，富有感染力和号召力。"},
+    "ENFP": {name: "活动家", desc: "热情开朗，富有创造力和想象力，热爱生活，喜欢探索新事物，善于社交，充满活力。"},
+    "ISTJ": {name: "检查员", desc: "务实可靠，责任心强，注重规则和秩序，做事认真细致，诚实守信，重视传统和规范。"},
+    "ISFJ": {name: "守护者", desc: "温暖负责，关心他人，注重细节，乐于奉献，重视家庭和朋友，忠诚可靠。"},
+    "ESTJ": {name: "总经理", desc: "务实高效，擅长管理和组织，重视规则和效率，果断直接，责任心强，适合担任领导角色。"},
+    "ESFJ": {name: "执政官", desc: "热情友好，善于社交，关心他人，乐于助人，重视和谐和合作，擅长组织活动。"},
+    "ISTP": {name: "手艺人", desc: "冷静务实，擅长动手解决问题，喜欢探索和尝试新事物，灵活应变，追求自由和独立。"},
+    "ISFP": {name: "艺术家", desc: "敏感温柔，富有艺术天赋，热爱生活，喜欢享受当下，重视个人空间和自由，温和友善。"},
+    "ESTP": {name: "企业家", desc: "精力充沛，务实灵活，善于抓住机会，喜欢冒险和挑战，擅长社交，反应迅速。"},
+    "ESFP": {name: "表演者", desc: "外向活泼，热爱生活，喜欢成为焦点，善于享受当下，乐观开朗，擅长社交和娱乐。"},
+};
+
+let currentQuestion = 0;
+let answers = new Array(questions.length).fill(null);
+
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById("question").textContent = `${currentQuestion + 1}. ${q.text}`;
+    
+    const optionsEl = document.getElementById("options");
+    optionsEl.innerHTML = "";
+    const optionTexts = ["非常不同意", "不同意", "中立", "同意", "非常同意"];
+    
+    optionTexts.forEach((text, index) => {
+        const div = document.createElement("div");
+        div.className = `option ${answers[currentQuestion] === index + 1 ? "selected" : ""}`;
+        div.textContent = `${index + 1}. ${text}`;
+        div.onclick = () => selectOption(index + 1);
+        optionsEl.appendChild(div);
+    });
+    
+    document.getElementById("progressBar").style.width = `${(currentQuestion + 1) / questions.length * 100}%`;
+    document.getElementById("prevBtn").disabled = currentQuestion === 0;
+    document.getElementById("nextBtn").disabled = answers[currentQuestion] === null;
+    document.getElementById("nextBtn").textContent = currentQuestion === questions.length - 1 ? "查看结果" : "下一题";
+}
+
+function selectOption(value) {
+    answers[currentQuestion] = value;
+    renderQuestion();
+}
+
+function startTest() {
+    currentQuestion = 0;
+    answers = new Array(questions.length).fill(null);
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("test").classList.remove("hidden");
+    renderQuestion();
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+    }
+}
+
+function nextQuestion() {
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+    } else {
+        calculateResult();
+    }
+}
+
+function calculateResult() {
+    const scores = {E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0};
+    
+    questions.forEach((q, index) => {
+        const score = answers[index];
+        if (q.reverse) {
+            scores[q.dimension] += 6 - score;
+        } else {
+            scores[q.dimension] += score;
+        }
+    });
+    
+    let type = "";
+    type += scores.E >= scores.I ? "E" : "I";
+    type += scores.N >= scores.S ? "N" : "S";
+    type += scores.T >= scores.F ? "T" : "F";
+    type += scores.J >= scores.P ? "J" : "P";
+    
+    const result = personalities[type];
+    document.getElementById("resultType").textContent = type;
+    document.getElementById("resultName").textContent = result.name;
+    document.getElementById("resultDesc").textContent = result.desc;
+    
+    document.getElementById("test").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+}
+
+function restart() {
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+}
+</script>
+</body>
+</html>

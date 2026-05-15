@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>豆包速度测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0e14;overflow:hidden;}
+canvas{display:block;width:100vw;height:100vh;}
+#info{position:fixed;top:20px;left:20px;color:rgba(74,144,164,0.7);font:14px monospace;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="info">豆包 Seed 2.0 生成耗时：<span id="time"></span> ms</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth,H=canvas.height=innerHeight;
+const stars=Array(300).fill().map(()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    r:Math.random()*2+0.5,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.3,
+    b:Math.random()*0.5+0.3
+}));
+
+function animate(){
+    ctx.fillStyle='rgba(10,14,20,0.15)';ctx.fillRect(0,0,W,H);
+    stars.forEach(s=>{
+        s.x+=s.vx;s.y+=s.vy;
+        if(s.x<0||s.x>W)s.x=Math.random()*W;
+        if(s.y<0||s.y>H)s.y=Math.random()*H;
+        ctx.globalAlpha=s.b;
+        ctx.fillStyle='#4a90a4';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+        ctx.globalAlpha=s.b*0.3;ctx.beginPath();ctx.arc(s.x,s.y,s.r*3,0,Math.PI*2);ctx.fill();
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
+document.getElementById('time').textContent='${int((time.time()-t0)*1000)}';
+</script>
+</body>
+</html>

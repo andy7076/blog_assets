@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>烟雨江南</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Serif SC', serif;
+    background: #080c12;
+    color: #c8d6e5;
+    overflow-x: hidden;
+  }
+
+  /* ══════════ 导航 ══════════ */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; justify-content: center; gap: 2.5rem;
+    padding: 1.2rem 2rem;
+    background: linear-gradient(to bottom, rgba(8,12,18,0.9), transparent);
+    backdrop-filter: blur(6px);
+    transition: opacity 0.5s;
+  }
+  nav a {
+    color: rgba(160,185,215,0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.3rem;
+    transition: all 0.3s;
+    position: relative;
+  }
+  nav a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 50%; right: 50%;
+    height: 1px;
+    background: rgba(140,170,210,0.6);
+    transition: all 0.3s;
+  }
+  nav a:hover { color: rgba(190,210,235,0.9); }
+  nav a:hover::after { left: 0; right: 0; }
+
+  /* ══════════ 雨幕 ══════════ */
+  .rain-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 2; overflow: hidden;
+  }
+  .raindrop {
+    position: absolute; width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(174,194,224,0.35));
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-100vh) rotate(2deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(100vh) rotate(2deg); opacity: 0; }
+  }
+
+  /* ══════════ 雾气 ══════════ */
+  .mist {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 3;
+  }
+  .mist-layer {
+    position: absolute; width: 200%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(120,144,180,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 30%, rgba(100,130,170,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(80,110,150,0.08) 0%, transparent 55%);
+    animation: drift 25s ease-in-out infinite alternate;
+  }
+  .mist-layer:nth-child(2) { animation-duration: 35s; animation-direction: alternate-reverse; opacity: 0.6; }
+  .mist-layer:nth-child(3) { animation-duration: 20s; opacity: 0.3; }
+  @keyframes drift { 0% { transform: translateX(-25%); } 100% { transform: translateX(0%); } }
+
+  /* ══════════ 闪电 ══════════ */
+  .lightning {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 50;
+    background: rgba(180,200,230,0);
+    transition: background 0.05s;
+  }
+  .lightning.flash { background: rgba(180,200,230,0.08); }
+
+  /* ══════════ 场景通用 ══════════ */
+  .scene {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ══════════ 第一幕：山水 ══════════ */
+  #scene-mountain {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #080c12 0%, #0d1520 40%, #111d2e 70%, #0a1018 100%);
+  }
+
+  .mountains-bg {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
+    z-index: 1;
+  }
+  .mtn { position: absolute; bottom: 0; width: 100%; }
+  .mtn-far {
+    height: 42vh;
+    clip-path: polygon(0% 100%, 3% 55%, 8% 68%, 14% 42%, 20% 58%, 26% 32%, 32% 52%, 38% 28%, 44% 48%, 50% 22%, 56% 45%, 62% 35%, 68% 55%, 74% 28%, 80% 48%, 86% 38%, 92% 58%, 97% 42%, 100% 60%, 100% 100%);
+    background: linear-gradient(to top, rgba(25,38,58,0.95), rgba(45,65,95,0.25));
+  }
+  .mtn-mid {
+    height: 32vh;
+    clip-path: polygon(0% 100%, 5% 68%, 12% 78%, 22% 48%, 30% 65%, 40% 38%, 50% 58%, 58% 42%, 68% 62%, 78% 32%, 86% 52%, 94% 45%, 100% 62%, 100% 100%);
+    background: linear-gradient(to top, rgba(18,28,45,0.98), rgba(35,52,78,0.45));
+  }
+  .mtn-near {
+    height: 22vh;
+    clip-path: polygon(0% 100%, 4% 72%, 12% 82%, 25% 55%, 38% 72%, 50% 50%, 62% 68%, 78% 48%, 90% 65%, 100% 75%, 100% 100%);
+    background: linear-gradient(to top, rgba(12,18,30,1), rgba(25,38,58,0.65));
+  }
+
+  /* 水面 */
+  .water-surface {
+    position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 18vh; z-index: 4;
+    background: linear-gradient(to bottom, rgba(18,30,50,0.5), rgba(12,22,38,0.9));
+    overflow: hidden;
+  }
+  .water-surface::before, .water-surface::after {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 200%; height: 100%;
+  }
+  .water-surface::before {
+    background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(140,170,210,0.025) 60px, rgba(140,170,210,0.025) 62px);
+    animation: ripple 7s linear infinite;
+  }
+  .water-surface::after {
+    background: repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(120,160,200,0.02) 100px, rgba(120,160,200,0.02) 102px);
+    animation: ripple 11s linear infinite reverse;
+  }
+  @keyframes ripple { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* 小舟 */
+  .boat {
+    position: absolute; z-index: 5;
+    bottom: 16vh; left: -5%;
+    animation: sailBy 45s linear infinite;
+  }
+  @keyframes sailBy {
+    0% { left: -8%; }
+    100% { left: 108%; }
+  }
+
+  /* 诗卡 */
+  .poem-card {
+    position: relative; z-index: 10;
+    background: rgba(15,22,38,0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(120,150,200,0.08);
+    border-radius: 20px;
+    padding: 3.5rem 4rem;
+    max-width: 560px; width: 90%;
+    text-align: center;
+    animation: cardIn 2s ease-out;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(180,200,230,0.04);
+  }
+  @keyframes cardIn { 0% { opacity: 0; transform: translateY(40px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .poem-card h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 3.2rem;
+    font-weight: 400;
+    letter-spacing: 1rem;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, #7ea8c8, #c4d7e8, #92b5d0, #dce8f2);
+    background-size: 200% 200%;
+    animation: shimmerText 6s ease-in-out infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-indent: 1rem;
+  }
+  @keyframes shimmerText { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: rgba(150,175,210,0.4);
+    letter-spacing: 0.6rem;
+    text-indent: 0.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .divider {
+    width: 80px; height: 1px; margin: 0 auto 2rem;
+    background: linear-gradient(90deg, transparent, rgba(140,170,210,0.35), transparent);
+  }
+
+  .poem-lines { display: flex; flex-direction: column; gap: 1.1rem; margin-bottom: 2rem; }
+  .poem-line {
+    font-size: 1.2rem; font-weight: 300; line-height: 1.9;
+    color: rgba(180,200,225,0.85);
+    opacity: 0;
+    animation: lineIn 1.2s ease-out forwards;
+  }
+  .poem-line:nth-child(1) { animation-delay: 1.2s; }
+  .poem-line:nth-child(2) { animation-delay: 2.4s; }
+  .poem-line:nth-child(3) { animation-delay: 3.6s; }
+  .poem-line:nth-child(4) { animation-delay: 4.8s; }
+  @keyframes lineIn { 0% { opacity: 0; transform: translateY(12px); filter: blur(5px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+  .poem-author {
+    font-size: 0.85rem;
+    color: rgba(130,160,195,0.4);
+    letter-spacing: 0.4rem;
+  }
+
+  .scroll-hint {
+    position: absolute; bottom: 4vh; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    color: rgba(120,150,185,0.3);
+    font-size: 0.7rem;
+    letter-spacing: 0.2rem;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+
+  /* ══════════ 第二幕：古镇 ══════════ */
+  #scene-town {
+    background: linear-gradient(180deg, #0a1018 0%, #0e1825 30%, #111d2e 60%, #0c1420 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 4rem 2rem;
+  }
+
+  .town-container {
+    position: relative; z-index: 10;
+    max-width: 900px; width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .town-card {
+    background: rgba(15,22,38,0.35);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(120,150,200,0.06);
+    border-radius: 14px;
+    padding: 2.5rem 2rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+  }
+  .town-card.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  .town-card h3 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.6rem;
+    color: rgba(160,190,225,0.8);
+    margin-bottom: 1rem;
+    letter-spacing: 0.3rem;
+  }
+  .town-card p {
+    font-size: 0.9rem;
+    line-height: 2;
+    color: rgba(150,175,205,0.6);
+    font-weight: 300;
+  }
+
+  .town-card .icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    display: block;
+    opacity: 0.7;
+  }
+
+  /* 桥 SVG */
+  .bridge-scene {
+    grid-column: 1 / -1;
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ══════════ 第三幕：诗词长廊 ══════════ */
+  #scene-poems {
+    background: linear-gradient(180deg, #0c1420 0%, #0e1825 40%, #101c2c 70%, #0a1018 100%);
+    padding: 6rem 2rem;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  .poems-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.5rem;
+    color: rgba(150,180,215,0.7);
+    letter-spacing: 0.8rem;
+    text-indent: 0.8rem;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .poem-scroll {
+    max-width: 700px; width: 100%;
+    display: flex; flex-direction: column; gap: 2.5rem;
+  }
+
+  .scroll-item {
+    position: relative;
+    background: rgba(15,22,38,0.3);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(120,150,200,0.05);
+    border-radius: 12px;
+    padding: 2.5rem 2.5rem 2rem;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.8s ease-out;
+  }
+  .scroll-item.visible {
+    opacity: 1; transform: translateX(0);
+  }
+  .scroll-item:nth-child(even) { transform: translateX(30px); }
+  .scroll-item:nth-child(even).visible { transform: translateX(0); }
+
+  .scroll-item .poem-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.3rem;
+    color: rgba(160,185,215,0.7);
+    margin-bottom: 1rem;
+    letter-spacing: 0.2rem;
+  }
+  .scroll-item .poem-body {
+    font-size: 1rem;
+    line-height: 2.2;
+    color: rgba(160,185,210,0.6);
+    font-weight: 300;
+  }
+  .scroll-item .poem-from {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: rgba(120,150,185,0.35);
+    text-align: right;
+  }
+
+  /* 印章 */
+  .seal {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    width: 40px; height: 40px;
+    border: 1.5px solid rgba(180,80,70,0.3);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 0.85rem;
+    color: rgba(180,80,70,0.35);
+    transform: rotate(-5deg);
+  }
+
+  /* ══════════ 第四幕：交互 ══════════ */
+  #scene-interactive {
+    background: linear-gradient(180deg, #0a1018, #0d1520, #0a1018);
+    min-height: 80vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+  }
+
+  .ink-canvas-container {
+    position: relative;
+    width: 90%; max-width: 800px;
+    aspect-ratio: 16/9;
+    background: rgba(12,18,28,0.6);
+    border: 1px solid rgba(120,150,200,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  #inkCanvas {
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  .ink-hint {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: rgba(120,150,185,0.3);
+    letter-spacing: 0.2rem;
+  }
+
+  .ink-controls {
+    display: flex; gap: 1rem; margin-top: 1rem;
+    flex-wrap: wrap; justify-content: center;
+  }
+
+  .ink-btn {
+    background: rgba(20,30,48,0.5);
+    border: 1px solid rgba(120,150,200,0.1);
+    color: rgba(160,185,215,0.6);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.1rem;
+  }
+  .ink-btn:hover {
+    background: rgba(30,45,70,0.5);
+    border-color: rgba(140,170,210,0.2);
+    color: rgba(180,200,230,0.9);
+  }
+
+  /* ══════════ 底部 ══════════ */
+  footer {
+    position: relative;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: rgba(8,12,18,0.9);
+    border-top: 1px solid rgba(100,130,170,0.05);
+  }
+  footer .footer-poem {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.4rem;
+    color: rgba(130,160,200,0.3);
+    letter-spacing: 0.3rem;
+    margin-bottom: 1.5rem;
+  }
+  footer p {
+    font-size: 0.75rem;
+    color: rgba(100,130,165,0.25);
+    letter-spacing: 0.1rem;
+  }
+
+  /* ══════════ 落花 ══════════ */
+  .petal {
+    position: fixed; z-index: 3;
+    background: radial-gradient(circle, rgba(180,130,150,0.5), rgba(160,110,130,0.05));
+    border-radius: 50% 0 50% 0;
+    animation: petalFall linear infinite;
+    pointer-events: none;
+  }
+  @keyframes petalFall {
+    0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    50% { transform: translateY(50vh) rotate(200deg) translateX(35px); }
+    90% { opacity: 0.2; }
+    100% { transform: translateY(105vh) rotate(400deg) translateX(-25px); opacity: 0; }
+  }
+
+  /* ══════════ 水面光点 ══════════ */
+  .reflection {
+    position: fixed; z-index: 5;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(174,194,224,0.25);
+    animation: shimmer 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmer {
+    0%,100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(1.5); }
+  }
+
+  /* ══════════ 萤火虫 ══════════ */
+  .firefly {
+    position: fixed; z-index: 6;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(200,210,140,0.7);
+    box-shadow: 0 0 6px rgba(200,210,140,0.4), 0 0 12px rgba(200,210,140,0.2);
+    animation: fireflyFloat linear infinite;
+    pointer-events: none;
+  }
+  @keyframes fireflyFloat {
+    0% { transform: translate(0,0); opacity: 0; }
+    10% { opacity: 0.8; }
+    25% { transform: translate(30px, -40px); opacity: 0.5; }
+    50% { transform: translate(-20px, -80px); opacity: 0.9; }
+    75% { transform: translate(40px, -30px); opacity: 0.4; }
+    90% { opacity: 0.7; }
+    100% { transform: translate(0, 0); opacity: 0; }
+  }
+
+  /* ══════════ 灯笼 ══════════ */
+  .lantern {
+    position: absolute; z-index: 6;
+    animation: sway 4s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  @keyframes sway {
+    0%,100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  /* ══════════ 音频控制 ══════════ */
+  .audio-toggle {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    z-index: 100;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(15,22,38,0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(120,150,200,0.1);
+    color: rgba(150,175,210,0.5);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .audio-toggle:hover {
+    background: rgba(25,38,58,0.7);
+    color: rgba(180,200,230,0.9);
+    border-color: rgba(140,170,210,0.2);
+  }
+
+  /* ══════════ 响应式 ══════════ */
+  @media (max-width: 768px) {
+    .town-container { grid-template-columns: 1fr; }
+    .poem-card { padding: 2.5rem 1.8rem; }
+    .poem-card h1 { font-size: 2.4rem; letter-spacing: 0.6rem; text-indent: 0.6rem; }
+    .poem-lines .poem-line { font-size: 1.05rem; }
+    nav { gap: 1.5rem; }
+    nav a { font-size: 0.75rem; letter-spacing: 0.2rem; }
+  }
+  @media (max-width: 480px) {
+    .poem-card { padding: 2rem 1.2rem; }
+    .poem-card h1 { font-size: 2rem; }
+    .scroll-item { padding: 1.8rem 1.5rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 闪电 -->
+<div class="lightning" id="lightning"></div>
+
+<!-- 雨幕 -->
+<div class="rain-container" id="rain"></div>
+
+<!-- 雾气 -->
+<div class="mist">
+  <div class="mist-layer"></div>
+  <div class="mist-layer"></div>
+  <div class="mist-layer"></div>
+</div>
+
+<!-- 导航 -->
+<nav id="mainNav">
+  <a href="#scene-mountain">山水</a>
+  <a href="#scene-town">古镇</a>
+  <a href="#scene-poems">诗词</a>
+  <a href="#scene-interactive">墨迹</a>
+</nav>
+
+<!-- ══════ 第一幕：山水 ══════ -->
+<section class="scene" id="scene-mountain">
+  <div class="mountains-bg">
+    <div class="mtn mtn-far"></div>
+    <div class="mtn mtn-mid"></div>
+    <div class="mtn mtn-near"></div>
+  </div>
+  <div class="water-surface"></div>
+
+  <!-- 小舟 -->
+  <div class="boat" id="boat1">
+    <svg width="100" height="50" viewBox="0 0 100 50" fill="none">
+      <path d="M10 30 Q50 45 90 30" stroke="rgba(120,100,75,0.4)" stroke-width="1.5" fill="rgba(80,65,45,0.15)"/>
+      <line x1="50" y1="8" x2="50" y2="30" stroke="rgba(100,80,60,0.3)" stroke-width="1"/>
+      <path d="M50 8 L50 28 Q62 20 50 12" fill="rgba(200,180,150,0.12)" stroke="rgba(150,130,100,0.15)" stroke-width="0.5"/>
+      <!-- 渔人 -->
+      <circle cx="42" cy="18" r="3" fill="rgba(100,80,60,0.25)"/>
+      <line x1="42" y1="21" x2="42" y2="28" stroke="rgba(100,80,60,0.2)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <!-- 灯笼 -->
+  <div class="lantern" style="top: 12%; left: 6%;">
+    <svg width="28" height="50" viewBox="0 0 28 50" fill="none">
+      <line x1="14" y1="0" x2="14" y2="10" stroke="rgba(100,80,60,0.3)" stroke-width="0.8"/>
+      <rect x="10" y="8" width="8" height="3" rx="1" fill="rgba(140,80,50,0.3)"/>
+      <ellipse cx="14" cy="28" rx="10" ry="16" fill="rgba(180,60,40,0.12)" stroke="rgba(200,80,50,0.15)" stroke-width="0.5"/>
+      <ellipse cx="14" cy="28" rx="6" ry="12" fill="rgba(220,100,60,0.08)"/>
+      <rect x="10" y="43" width="8" height="2" rx="1" fill="rgba(140,80,50,0.3)"/>
+      <line x1="14" y1="45" x2="14" y2="50" stroke="rgba(100,80,60,0.2)" stroke-width="0.5"/>
+      <!-- 灯光 -->
+      <ellipse cx="14" cy="28" rx="18" ry="24" fill="rgba(220,120,60,0.03)"/>
+    </svg>
+  </div>
+
+  <div class="lantern" style="top: 8%; right: 12%; animation-delay: 1.5s; animation-duration: 5s;">
+    <svg width="22" height="40" viewBox="0 0 22 40" fill="none">
+      <line x1="11" y1="0" x2="11" y2="8" stroke="rgba(100,80,60,0.25)" stroke-width="0.6"/>
+      <rect x="7" y="6" width="8" height="2.5" rx="1" fill="rgba(140,80,50,0.25)"/>
+      <ellipse cx="11" cy="22" rx="8" ry="13" fill="rgba(180,60,40,0.1)" stroke="rgba(200,80,50,0.12)" stroke-width="0.4"/>
+      <ellipse cx="11" cy="22" rx="5" ry="9" fill="rgba(220,100,60,0.06)"/>
+      <rect x="7" y="34" width="8" height="2" rx="1" fill="rgba(140,80,50,0.25)"/>
+      <ellipse cx="11" cy="22" rx="14" ry="20" fill="rgba(220,120,60,0.02)"/>
+    </svg>
+  </div>
+
+  <div class="content">
+    <div class="poem-card">
+      <h1>烟雨江南</h1>
+      <div class="subtitle">水墨 · 江南 · 旧梦</div>
+      <div class="divider"></div>
+      <div class="poem-lines">
+        <div class="poem-line">千里莺啼绿映红，</div>
+        <div class="poem-line">水村山郭酒旗风。</div>
+        <div class="poem-line">南朝四百八十寺，</div>
+        <div class="poem-line">多少楼台烟雨中。</div>
+      </div>
+      <div class="divider"></div>
+      <div class="poem-author">— 杜牧《江南春》</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>▾ 向下探索 ▾</span>
+  </div>
+</section>
+
+<!-- ══════ 第二幕：古镇 ══════ -->
+<section class="scene" id="scene-town">
+  <div class="town-container">
+    <div class="town-card" data-observe>
+      <span class="icon">🌉</span>
+      <h3>小桥流水</h3>
+      <p>青石板路蜿蜒入巷，溪水穿桥而过，两岸白墙黛瓦倒映水中。乌篷船摇橹声声，推开一圈圈涟漪。</p>
+    </div>
+    <div class="town-card" data-observe>
+      <span class="icon">🍵</span>
+      <h3>茶馆听雨</h3>
+      <p>沿河茶楼二楼靠窗，一壶龙井，几碟茶点。檐下雨帘如珠，滴答声伴着评弹吴侬软语。</p>
+    </div>
+    <div class="town-card" data-observe>
+      <span class="icon">🏮</span>
+      <h3>雨巷灯笼</h3>
+      <p>暮色渐浓，纸灯笼次第亮起，橘红光晕映着湿漉漉的青石路。巷子深处传来卖花声。</p>
+    </div>
+    <div class="town-card" data-observe>
+      <span class="icon">🌿</span>
+      <h3>烟柳画桥</h3>
+      <p>柳丝如烟，低垂水面。远处的拱桥半隐于雾中，宛如一弯新月落在人间。</p>
+    </div>
+
+    <!-- 桥 -->
+    <div class="bridge-scene">
+      <svg width="100%" height="180" viewBox="0 0 800 180" preserveAspectRatio="xMidYMid meet" fill="none">
+        <!-- 拱桥 -->
+        <path d="M100 160 Q400 -20 700 160" stroke="rgba(100,85,65,0.25)" stroke-width="2" fill="none"/>
+        <path d="M100 160 Q400 10 700 160" stroke="rgba(100,85,65,0.15)" stroke-width="1" fill="rgba(60,50,40,0.08)"/>
+        <!-- 桥栏杆 -->
+        <path d="M130 155 Q400 25 670 155" stroke="rgba(100,85,65,0.12)" stroke-width="0.5" fill="none"/>
+        <!-- 桥柱 -->
+        <line x1="200" y1="125" x2="200" y2="135" stroke="rgba(100,85,65,0.15)" stroke-width="1"/>
+        <line x1="300" y1="85" x2="300" y2="100" stroke="rgba(100,85,65,0.15)" stroke-width="1"/>
+        <line x1="400" y1="68" x2="400" y2="85" stroke="rgba(100,85,65,0.15)" stroke-width="1"/>
+        <line x1="500" y1="85" x2="500" y2="100" stroke="rgba(100,85,65,0.15)" stroke-width="1"/>
+        <line x1="600" y1="125" x2="600" y2="135" stroke="rgba(100,85,65,0.15)" stroke-width="1"/>
+        <!-- 水中倒影 -->
+        <path d="M100 165 Q400 340 700 165" stroke="rgba(100,130,170,0.06)" stroke-width="0.8" fill="none"/>
+        <!-- 柳枝 -->
+        <path d="M50 60 Q40 100 45 150" stroke="rgba(80,130,80,0.15)" stroke-width="0.8" fill="none"/>
+        <path d="M55 60 Q60 110 50 155" stroke="rgba(80,130,80,0.12)" stroke-width="0.6" fill="none"/>
+        <path d="M45 60 Q30 95 35 145" stroke="rgba(80,130,80,0.1)" stroke-width="0.5" fill="none"/>
+        <path d="M750 55 Q760 95 755 150" stroke="rgba(80,130,80,0.15)" stroke-width="0.8" fill="none"/>
+        <path d="M745 55 Q735 105 745 155" stroke="rgba(80,130,80,0.12)" stroke-width="0.6" fill="none"/>
+        <!-- 人影 -->
+        <ellipse cx="380" cy="85" rx="2" ry="6" fill="rgba(80,70,60,0.2)"/>
+        <circle cx="380" cy="77" r="2" fill="rgba(80,70,60,0.15)"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 第三幕：诗词长廊 ══════ -->
+<section class="scene" id="scene-poems">
+  <div class="poems-title">烟雨诗笺</div>
+  <div class="poem-scroll">
+    <div class="scroll-item" data-observe>
+      <div class="seal">雨</div>
+      <div class="poem-title">忆江南</div>
+      <div class="poem-body">
+        江南好，风景旧曾谙。<br>
+        日出江花红胜火，<br>
+        春来江水绿如蓝。<br>
+        能不忆江南？
+      </div>
+      <div class="poem-from">白居易</div>
+    </div>
+    <div class="scroll-item" data-observe>
+      <div class="seal">梦</div>
+      <div class="poem-title">望江南·超然台作</div>
+      <div class="poem-body">
+        春未老，风细柳斜斜。<br>
+        试上超然台上看，<br>
+        半壕春水一城花。<br>
+        烟雨暗千家。
+      </div>
+      <div class="poem-from">苏轼</div>
+    </div>
+    <div class="scroll-item" data-observe>
+      <div class="seal">愁</div>
+      <div class="poem-title">菩萨蛮</div>
+      <div class="poem-body">
+        人人尽说江南好，<br>
+        游人只合江南老。<br>
+        春水碧于天，<br>
+        画船听雨眠。
+      </div>
+      <div class="poem-from">韦庄</div>
+    </div>
+    <div class="scroll-item" data-observe>
+      <div class="seal">归</div>
+      <div class="poem-title">渔歌子</div>
+      <div class="poem-body">
+        西塞山前白鹭飞，<br>
+        桃花流水鳜鱼肥。<br>
+        青箬笠，绿蓑衣，<br>
+        斜风细雨不须归。
+      </div>
+      <div class="poem-from">张志和</div>
+    </div>
+    <div class="scroll-item" data-observe>
+      <div class="seal">思</div>
+      <div class="poem-title">虞美人·听雨</div>
+      <div class="poem-body">
+        少年听雨歌楼上，<br>
+        红烛昏罗帐。<br>
+        壮年听雨客舟中，<br>
+        江阔云低、断雁叫西风。
+      </div>
+      <div class="poem-from">蒋捷</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 第四幕：水墨互动 ══════ -->
+<section class="scene" id="scene-interactive">
+  <div class="poems-title" style="margin-bottom:1.5rem;">泼墨山水</div>
+  <div class="ink-canvas-container">
+    <canvas id="inkCanvas"></canvas>
+  </div>
+  <div class="ink-hint">在画布上拖动鼠标，落墨成山水</div>
+  <div class="ink-controls">
+    <button class="ink-btn" onclick="setBrush('ink')">浓墨</button>
+    <button class="ink-btn" onclick="setBrush('light')">淡墨</button>
+    <button class="ink-btn" onclick="setBrush('wash')">渲染</button>
+    <button class="ink-btn" onclick="clearCanvas()">留白</button>
+  </div>
+</section>
+
+<!-- 底部 -->
+<footer>
+  <div class="footer-poem">细雨湿流光，芳草年年与恨长</div>
+  <p>烟雨江南 — 水墨意境</p>
+</footer>
+
+<!-- 音频按钮 -->
+<button class="audio-toggle" id="audioBtn" title="雨声">🌧</button>
+
+<script>
+// ═══════ 雨滴生成 ═══════
+const rain = document.getElementById('rain');
+for (let i = 0; i < 100; i++) {
+  const d = document.createElement('div');
+  d.className = 'raindrop';
+  const h = Math.random() * 35 + 12;
+  d.style.cssText = `left:${Math.random()*100}%;height:${h}px;animation-delay:${Math.random()*3}s;animation-duration:${Math.random()*1.2+1}s;opacity:${Math.random()*0.25+0.08};`;
+  rain.appendChild(d);
+}
+
+// ═══════ 水面光点 ═══════
+for (let i = 0; i < 18; i++) {
+  const r = document.createElement('div');
+  r.className = 'reflection';
+  r.style.cssText = `left:${Math.random()*90+5}%;bottom:${Math.random()*12+2}vh;animation-delay:${Math.random()*3}s;animation-duration:${Math.random()*2+2}s;`;
+  document.body.appendChild(r);
+}
+
+// ═══════ 落花 ═══════
+for (let i = 0; i < 8; i++) {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  const s = Math.random() * 7 + 4;
+  p.style.cssText = `left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-delay:${Math.random()*10}s;animation-duration:${Math.random()*8+8}s;`;
+  document.body.appendChild(p);
+}
+
+// ═══════ 萤火虫 ═══════
+for (let i = 0; i < 12; i++) {
+  const f = document.createElement('div');
+  f.className = 'firefly';
+  f.style.cssText = `left:${Math.random()*90+5}%;top:${Math.random()*70+15}%;animation-delay:${Math.random()*6}s;animation-duration:${Math.random()*8+6}s;`;
+  document.body.appendChild(f);
+}
+
+// ═══════ 闪电 ═══════
+const lightning = document.getElementById('lightning');
+function flashLightning() {
+  lightning.classList.add('flash');
+  setTimeout(() => lightning.classList.remove('flash'), 80);
+  setTimeout(() => {
+    lightning.classList.add('flash');
+    setTimeout(() => lightning.classList.remove('flash'), 60);
+  }, 150);
+  setTimeout(flashLightning, Math.random() * 20000 + 15000);
+}
+setTimeout(flashLightning, Math.random() * 10000 + 5000);
+
+// ═══════ 滚动观察 ═══════
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('[data-observe]').forEach(el => observer.observe(el));
+
+// ═══════ 导航隐藏 ═══════
+let lastScroll = 0;
+const mainNav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  const curr = window.scrollY;
+  if (curr > lastScroll && curr > 100) {
+    mainNav.style.opacity = '0';
+    mainNav.style.pointerEvents = 'none';
+  } else {
+    mainNav.style.opacity = '1';
+    mainNav.style.pointerEvents = 'auto';
+  }
+  lastScroll = curr;
+});
+
+// ═══════ 水墨画布 ═══════
+const canvas = document.getElementById('inkCanvas');
+const ctx = canvas.getContext('2d');
+let brushType = 'ink';
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  canvas.width = container.clientWidth * 2;
+  canvas.height = container.clientHeight * 2;
+  ctx.scale(2, 2);
+  // 初始渲染底色
+  ctx.fillStyle = 'rgba(12,18,28,0.01)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const brushStyles = {
+  ink:   { color: 'rgba(30,30,30,0.35)', width: 4, blur: 1 },
+  light: { color: 'rgba(60,60,60,0.12)', width: 8, blur: 2 },
+  wash:  { color: 'rgba(80,80,80,0.04)', width: 30, blur: 8 },
+};
+
+function setBrush(type) {
+  brushType = type;
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  const rect = canvas.getBoundingClientRect();
+  lastX = e.clientX - rect.left;
+  lastY = e.clientY - rect.top;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!isDrawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const b = brushStyles[brushType];
+
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(x, y);
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth = b.width + Math.random() * 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.filter = `blur(${b.blur}px)`;
+  ctx.stroke();
+  ctx.filter = 'none';
+
+  // 飞白效果
+  if (brushType === 'ink' && Math.random() > 0.6) {
+    ctx.beginPath();
+    ctx.arc(x + (Math.random()-0.5)*6, y + (Math.random()-0.5)*6, Math.random()*2+0.5, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(20,20,20,0.15)';
+    ctx.fill();
+  }
+
+  // 渲染模式额外扩散
+  if (brushType === 'wash') {
+    ctx.beginPath();
+    ctx.arc(x, y, Math.random()*15+10, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(60,60,60,0.01)';
+    ctx.fill();
+  }
+
+  lastX = x;
+  lastY = y;
+});
+
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+// 触摸支持
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  isDrawing = true;
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  lastX = t.clientX - rect.left;
+  lastY = t.clientY - rect.top;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!isDrawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  const x = t.clientX - rect.left;
+  const y = t.clientY - rect.top;
+  const b = brushStyles[brushType];
+
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(x, y);
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth = b.width;
+  ctx.lineCap = 'round';
+  ctx.filter = `blur(${b.blur}px)`;
+  ctx.stroke();
+  ctx.filter = 'none';
+
+  lastX = x;
+  lastY = y;
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => isDrawing = false);
+
+// ═══════ 雨声音频（Web Audio API 模拟） ═══════
+let audioCtx = null;
+let audioPlaying = false;
+let audioNodes = [];
+
+function createRainSound() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  // 白噪音 -> 滤波 -> 增益 模拟雨声
+  const bufferSize = audioCtx.sampleRate * 2;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+
+  // 低通滤波让噪音更柔和
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 800;
+
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.08;
+
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioCtx.destination);
+  source.start();
+
+  audioNodes = [source, filter, gain];
+  audioPlaying = true;
+}
+
+function stopRainSound() {
+  if (audioNodes.length) {
+    audioNodes[0].stop();
+    audioNodes = [];
+  }
+  if (audioCtx) {
+    audioCtx.close();
+    audioCtx = null;
+  }
+  audioPlaying = false;
+}
+
+document.getElementById('audioBtn').addEventListener('click', () => {
+  if (audioPlaying) {
+    stopRainSound();
+    document.getElementById('audioBtn').textContent = '🌧';
+  } else {
+    createRainSound();
+    document.getElementById('audioBtn').textContent = '🔊';
+  }
+});
+
+// ═══════ 鼠标视差（首屏） ═══════
+document.addEventListener('mousemove', (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 2;
+  const y = (e.clientY / window.innerHeight - 0.5) * 2;
+  
+  const lanterns = document.querySelectorAll('.lantern');
+  lanterns.forEach((l, i) => {
+    const depth = (i + 1) * 3;
+    l.style.transform = `translate(${x * depth}px, ${y * depth * 0.5}px) rotate(${x * 3}deg)`;
+  });
+});
+
+</script>
+</body>
+</html>
