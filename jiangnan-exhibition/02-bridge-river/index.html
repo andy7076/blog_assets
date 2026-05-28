@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小桥流水</title>
+  <style>
+    :root {
+      --willow: #4f8f66;
+      --willow-dark: #2f6a52;
+      --water: #5b8f94;
+      --water-deep: #315f68;
+      --stone: #8a9691;
+      --tile: #283a3f;
+      --wall: #fff7e8;
+      --paper: #f8f1df;
+      --ink: #263a3b;
+      --sun: #f2ca82;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "STSong", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+      background:
+        radial-gradient(circle at 72% 15%, rgba(242, 202, 130, .32), transparent 23rem),
+        linear-gradient(180deg, #dceee3 0%, #f5eedc 53%, #cbdfd5 100%);
+    }
+
+    .scene {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .title {
+      position: absolute;
+      z-index: 5;
+      top: clamp(22px, 5vw, 54px);
+      left: clamp(18px, 6vw, 78px);
+      max-width: min(560px, calc(100vw - 36px));
+      text-shadow: 0 2px 18px rgba(255, 247, 232, .7);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(3.8rem, 12vw, 10rem);
+      font-weight: 500;
+      line-height: .92;
+      letter-spacing: 0;
+    }
+
+    .seal {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-top: 18px;
+      border: 2px solid #9f3f32;
+      color: #9f3f32;
+      font-size: 1rem;
+      line-height: 1.05;
+      font-family: "Kaiti SC", "STKaiti", serif;
+      background: rgba(255, 247, 232, .58);
+    }
+
+    .poem {
+      position: absolute;
+      z-index: 6;
+      right: clamp(16px, 5vw, 72px);
+      top: clamp(32px, 9vw, 94px);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: clamp(1rem, 1.7vw, 1.35rem);
+      line-height: 1.9;
+      letter-spacing: .12em;
+      color: rgba(38, 58, 59, .82);
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .mist {
+      position: absolute;
+      inset: auto -12% 41% -12%;
+      height: 16vh;
+      z-index: 3;
+      opacity: .34;
+      background:
+        radial-gradient(ellipse at 20% 55%, rgba(255, 247, 232, .9), transparent 36%),
+        radial-gradient(ellipse at 52% 45%, rgba(255, 247, 232, .85), transparent 40%),
+        radial-gradient(ellipse at 84% 56%, rgba(255, 247, 232, .78), transparent 34%);
+      filter: blur(18px);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+
+    .water-sparkle {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 43vh;
+      z-index: 4;
+      pointer-events: none;
+      background-image:
+        linear-gradient(100deg, transparent 0 42%, rgba(255, 247, 232, .72) 48%, transparent 55%),
+        linear-gradient(80deg, transparent 0 46%, rgba(238, 246, 226, .5) 50%, transparent 57%),
+        linear-gradient(100deg, transparent 0 44%, rgba(255, 247, 232, .5) 49%, transparent 55%);
+      background-size: 280px 20px, 210px 16px, 360px 26px;
+      background-position: 0 14%, 80px 38%, -40px 66%;
+      mix-blend-mode: screen;
+      opacity: .45;
+      transform: skewY(-5deg);
+      animation: shimmer 8s linear infinite;
+    }
+
+    .credit {
+      position: absolute;
+      z-index: 7;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      padding: 7px 13px;
+      border: 1px solid rgba(40, 58, 63, .16);
+      border-radius: 999px;
+      color: rgba(38, 58, 59, .64);
+      background: rgba(255, 247, 232, .42);
+      backdrop-filter: blur(8px);
+      font-size: .8rem;
+      white-space: nowrap;
+    }
+
+    .boat {
+      transform-origin: 50% 50%;
+      animation: boat-glide 24s ease-in-out infinite;
+    }
+
+    .boat-shadow {
+      animation: shadow-glide 24s ease-in-out infinite;
+    }
+
+    .willow-left {
+      transform-origin: 72px 116px;
+      animation: willow-sway 6s ease-in-out infinite alternate;
+    }
+
+    .willow-right {
+      transform-origin: 1124px 118px;
+      animation: willow-sway-right 7s ease-in-out infinite alternate;
+    }
+
+    .water-line {
+      stroke-dasharray: 18 24;
+      animation: current 9s linear infinite;
+    }
+
+    .reflection {
+      opacity: .34;
+      filter: url(#softBlur);
+      transform-origin: 600px 640px;
+      animation: reflection 5.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes boat-glide {
+      0%, 100% { transform: translateX(-58px) translateY(5px) rotate(-.3deg); }
+      50% { transform: translateX(104px) translateY(-7px) rotate(.45deg); }
+    }
+
+    @keyframes shadow-glide {
+      0%, 100% { transform: translateX(-54px); opacity: .18; }
+      50% { transform: translateX(104px); opacity: .24; }
+    }
+
+    @keyframes willow-sway {
+      from { transform: rotate(-1deg); }
+      to { transform: rotate(2.4deg); }
+    }
+
+    @keyframes willow-sway-right {
+      from { transform: rotate(1.4deg); }
+      to { transform: rotate(-2deg); }
+    }
+
+    @keyframes current {
+      to { stroke-dashoffset: -180; }
+    }
+
+    @keyframes shimmer {
+      to { background-position: 280px 14%, 290px 38%, 320px 66%; }
+    }
+
+    @keyframes drift {
+      to { transform: translateX(4%); }
+    }
+
+    @keyframes reflection {
+      from { transform: scaleY(.98) skewX(-1deg); }
+      to { transform: scaleY(1.03) skewX(1.2deg); }
+    }
+
+    @media (max-width: 720px) {
+      .scene {
+        min-height: 100svh;
+      }
+
+      .poem {
+        top: auto;
+        bottom: 72px;
+        right: 14px;
+        font-size: .92rem;
+        color: rgba(38, 58, 59, .72);
+      }
+
+      .seal {
+        width: 36px;
+        height: 36px;
+        font-size: .86rem;
+      }
+
+      .credit {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene" aria-label="小桥流水江南水乡画面">
+    <div class="title">
+      <h1>小桥<br>流水</h1>
+      <span class="seal">江南</span>
+    </div>
+
+    <p class="poem">水巷晨光浅，乌篷过柳阴。</p>
+
+    <div class="stage" aria-hidden="true">
+      <svg viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" role="img">
+        <defs>
+          <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#d7eadf"/>
+            <stop offset=".58" stop-color="#f8f1df"/>
+            <stop offset="1" stop-color="#b8d4ce"/>
+          </linearGradient>
+
+          <linearGradient id="waterGradient" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#6ba3a1"/>
+            <stop offset=".42" stop-color="#4f848b"/>
+            <stop offset="1" stop-color="#315f68"/>
+          </linearGradient>
+
+          <linearGradient id="wallWarm" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#fffaf0"/>
+            <stop offset="1" stop-color="#e8dfcc"/>
+          </linearGradient>
+
+          <linearGradient id="stoneGradient" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#aeb6ae"/>
+            <stop offset=".5" stop-color="#7f8f8b"/>
+            <stop offset="1" stop-color="#6c7d7d"/>
+          </linearGradient>
+
+          <linearGradient id="willowGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#6ea56b"/>
+            <stop offset="1" stop-color="#2f6a52"/>
+          </linearGradient>
+
+          <filter id="softBlur">
+            <feGaussianBlur stdDeviation="2.6"/>
+          </filter>
+
+          <filter id="paperNoise">
+            <feTurbulence baseFrequency=".85" numOctaves="3" seed="8" type="fractalNoise"/>
+            <feColorMatrix values="0 0 0 0 0.96 0 0 0 0 0.92 0 0 0 0 0.82 0 0 0 .08 0"/>
+            <feBlend in2="SourceGraphic" mode="multiply"/>
+          </filter>
+
+          <pattern id="roofTiles" width="36" height="12" patternUnits="userSpaceOnUse">
+            <path d="M0 11 Q9 1 18 11 T36 11" fill="none" stroke="#1f3034" stroke-width="1.6" opacity=".58"/>
+          </pattern>
+
+          <pattern id="stoneBlocks" width="46" height="28" patternUnits="userSpaceOnUse">
+            <path d="M0 27H46M23 0V27" fill="none" stroke="#5d6d6e" stroke-width="1" opacity=".25"/>
+          </pattern>
+        </defs>
+
+        <rect width="1200" height="760" fill="url(#sky)"/>
+        <circle cx="928" cy="118" r="58" fill="#f2ca82" opacity=".58"/>
+
+        <g opacity=".34">
+          <path d="M0 313 C132 245 255 286 381 246 C514 204 624 226 752 188 C884 149 1030 177 1200 115 L1200 400 L0 400Z" fill="#86aa94"/>
+          <path d="M0 353 C165 300 286 344 433 302 C598 255 737 296 892 235 C997 194 1090 218 1200 184 L1200 440 L0 440Z" fill="#9ebca6" opacity=".72"/>
+        </g>
+
+        <g class="buildings">
+          <g transform="translate(-26 256)">
+            <path d="M34 69 L96 17 L214 17 L277 69 Z" fill="#26383d"/>
+            <path d="M59 70 H252 V192 H59 Z" fill="url(#wallWarm)" filter="url(#paperNoise)"/>
+            <path d="M34 69 H277 L252 88 H60 Z" fill="url(#roofTiles)"/>
+            <path d="M81 104 H126 V154 H81 ZM165 99 H220 V162 H165 Z" fill="#314c51" opacity=".72"/>
+            <path d="M62 184 H253" stroke="#8f9c95" stroke-width="8"/>
+          </g>
+
+          <g transform="translate(182 229)">
+            <path d="M0 83 L71 25 H230 L307 83 Z" fill="#283a3f"/>
+            <path d="M34 83 H273 V218 H34 Z" fill="url(#wallWarm)" filter="url(#paperNoise)"/>
+            <path d="M0 83 H307 L272 104 H34 Z" fill="url(#roofTiles)"/>
+            <path d="M61 122 H116 V187 H61 ZM159 112 H237 V196 H159 Z" fill="#2e4a50" opacity=".78"/>
+            <path d="M50 217 H286" stroke="#7c8d88" stroke-width="9"/>
+          </g>
+
+          <g transform="translate(848 249)">
+            <path d="M0 73 L77 19 H244 L320 73 Z" fill="#293c41"/>
+            <path d="M32 73 H287 V204 H32 Z" fill="url(#wallWarm)" filter="url(#paperNoise)"/>
+            <path d="M0 73 H320 L286 95 H32 Z" fill="url(#roofTiles)"/>
+            <path d="M65 111 H128 V177 H65 ZM181 103 H248 V181 H181 Z" fill="#315258" opacity=".74"/>
+            <path d="M37 202 H293" stroke="#85958f" stroke-width="9"/>
+          </g>
+
+          <g transform="translate(690 282)">
+            <path d="M0 54 L48 16 H150 L205 54 Z" fill="#2c3f43"/>
+            <path d="M22 55 H184 V176 H22 Z" fill="url(#wallWarm)" filter="url(#paperNoise)"/>
+            <path d="M0 54 H205 L184 73 H22 Z" fill="url(#roofTiles)"/>
+            <path d="M52 95 H102 V157 H52 ZM123 92 H158 V150 H123 Z" fill="#2b484e" opacity=".76"/>
+          </g>
+        </g>
+
+        <path d="M0 390 C136 408 234 372 359 389 C474 405 586 389 694 376 C865 356 1010 394 1200 361 L1200 760 L0 760Z" fill="url(#waterGradient)"/>
+        <path d="M0 402 C154 422 246 382 374 402 C532 426 678 375 817 385 C958 395 1052 410 1200 376" fill="none" stroke="#f8f1df" stroke-width="2" opacity=".36"/>
+
+        <g class="reflection">
+          <path d="M372 462 C432 522 512 554 604 548 C702 542 785 507 838 458 L828 507 C760 588 662 625 558 620 C457 615 376 573 331 511Z" fill="#fff7e8"/>
+          <path d="M380 481 C438 534 512 559 601 554 C692 549 767 519 820 479" fill="none" stroke="#6c7d7d" stroke-width="12" opacity=".32"/>
+          <path d="M434 525 C518 568 671 571 766 523" fill="none" stroke="#263a3b" stroke-width="6" opacity=".17"/>
+        </g>
+
+        <g class="bridge">
+          <path d="M324 406 C391 278 494 229 604 229 C716 229 812 284 869 407 L836 423 C782 323 702 280 604 280 C506 280 420 325 357 424Z" fill="url(#stoneGradient)"/>
+          <path d="M384 421 C438 328 511 288 606 288 C701 288 772 329 821 420 L767 420 C727 359 673 333 606 333 C537 333 479 360 437 421Z" fill="url(#sky)"/>
+          <path d="M318 407 C394 262 498 207 604 207 C718 207 822 269 876 407" fill="none" stroke="#e0ddcc" stroke-width="10" stroke-linecap="round"/>
+          <path d="M331 404 C402 284 495 242 604 242 C709 242 796 291 861 405" fill="none" stroke="#657575" stroke-width="3" opacity=".62"/>
+          <path d="M353 424 H843 V462 H353 Z" fill="url(#stoneGradient)"/>
+          <rect x="353" y="424" width="490" height="38" fill="url(#stoneBlocks)" opacity=".72"/>
+          <g fill="#eff0df" opacity=".84">
+            <rect x="375" y="387" width="14" height="38" rx="3"/>
+            <rect x="421" y="335" width="13" height="35" rx="3"/>
+            <rect x="477" y="294" width="13" height="35" rx="3"/>
+            <rect x="544" y="272" width="13" height="35" rx="3"/>
+            <rect x="621" y="272" width="13" height="35" rx="3"/>
+            <rect x="695" y="297" width="13" height="35" rx="3"/>
+            <rect x="753" y="341" width="13" height="35" rx="3"/>
+            <rect x="813" y="389" width="14" height="36" rx="3"/>
+          </g>
+        </g>
+
+        <g class="boat-shadow" opacity=".2">
+          <ellipse cx="636" cy="590" rx="148" ry="18" fill="#14383d"/>
+        </g>
+
+        <g class="boat" transform="translate(0 0)">
+          <path d="M493 546 C559 578 682 580 755 545 C714 615 552 620 493 546Z" fill="#2f352f"/>
+          <path d="M522 548 C573 568 671 569 723 548 C682 586 573 589 522 548Z" fill="#6d4e35"/>
+          <path d="M594 491 C625 462 663 463 694 492 L708 547 H574 Z" fill="#202b2f"/>
+          <path d="M607 495 C631 477 661 478 684 497 L693 545 H596 Z" fill="#2f4348"/>
+          <path d="M569 533 H716" stroke="#1d272b" stroke-width="6" stroke-linecap="round"/>
+          <path d="M746 507 L804 454" stroke="#614833" stroke-width="5" stroke-linecap="round"/>
+          <path d="M800 455 C808 454 818 460 825 467 C813 469 805 466 800 455Z" fill="#614833"/>
+          <path d="M514 548 C574 576 673 577 742 549" fill="none" stroke="#d6be82" stroke-width="2" opacity=".55"/>
+        </g>
+
+        <g class="willow-left">
+          <path d="M57 0 C79 88 75 176 63 265 C53 342 43 394 18 466" fill="none" stroke="#4d5b3a" stroke-width="28" stroke-linecap="round"/>
+          <path d="M70 92 C121 145 143 205 139 284" fill="none" stroke="#3b6b49" stroke-width="9" stroke-linecap="round"/>
+          <path d="M75 119 C39 177 28 248 38 328" fill="none" stroke="#3f7850" stroke-width="8" stroke-linecap="round"/>
+          <path d="M74 139 C126 217 113 292 100 363" fill="none" stroke="#3f7850" stroke-width="7" stroke-linecap="round"/>
+          <path d="M82 159 C164 221 180 303 172 388" fill="none" stroke="#3f7850" stroke-width="7" stroke-linecap="round"/>
+          <g stroke="url(#willowGradient)" stroke-width="3.2" stroke-linecap="round" opacity=".82">
+            <path d="M99 131 C128 189 131 252 111 326"/>
+            <path d="M116 146 C156 212 158 282 137 355"/>
+            <path d="M61 151 C38 222 39 282 53 352"/>
+            <path d="M39 185 C15 249 12 318 28 392"/>
+            <path d="M91 191 C95 262 85 336 62 413"/>
+            <path d="M139 199 C172 267 177 336 162 430"/>
+            <path d="M161 227 C209 289 218 361 199 452"/>
+          </g>
+          <g fill="#6fa56d" opacity=".78">
+            <ellipse cx="94" cy="128" rx="54" ry="34"/>
+            <ellipse cx="40" cy="164" rx="55" ry="32"/>
+            <ellipse cx="113" cy="175" rx="65" ry="36"/>
+            <ellipse cx="81" cy="221" rx="62" ry="32"/>
+            <ellipse cx="151" cy="232" rx="48" ry="27"/>
+          </g>
+        </g>
+
+        <g class="willow-right">
+          <path d="M1138 10 C1116 88 1117 175 1131 260 C1143 334 1164 396 1194 474" fill="none" stroke="#4c5a3a" stroke-width="25" stroke-linecap="round"/>
+          <path d="M1129 98 C1078 148 1057 219 1064 300" fill="none" stroke="#3e754f" stroke-width="8" stroke-linecap="round"/>
+          <path d="M1125 127 C1164 184 1179 261 1171 337" fill="none" stroke="#3f7850" stroke-width="7" stroke-linecap="round"/>
+          <path d="M1124 149 C1064 213 1041 292 1046 381" fill="none" stroke="#3f7850" stroke-width="7" stroke-linecap="round"/>
+          <g stroke="url(#willowGradient)" stroke-width="3" stroke-linecap="round" opacity=".82">
+            <path d="M1105 138 C1073 198 1074 264 1093 334"/>
+            <path d="M1084 158 C1045 226 1039 301 1056 375"/>
+            <path d="M1144 168 C1170 230 1173 301 1160 381"/>
+            <path d="M1100 199 C1087 270 1092 348 1115 428"/>
+            <path d="M1063 218 C1028 282 1018 361 1035 452"/>
+          </g>
+          <g fill="#6da36b" opacity=".78">
+            <ellipse cx="1124" cy="128" rx="50" ry="32"/>
+            <ellipse cx="1075" cy="164" rx="58" ry="33"/>
+            <ellipse cx="1145" cy="180" rx="62" ry="34"/>
+            <ellipse cx="1098" cy="232" rx="62" ry="32"/>
+          </g>
+        </g>
+
+        <g opacity=".52" fill="none" stroke-linecap="round">
+          <path class="water-line" d="M86 529 C194 501 308 545 430 516 C540 490 673 527 815 502 C952 478 1050 509 1160 488" stroke="#dcebd8" stroke-width="3"/>
+          <path class="water-line" d="M35 613 C196 584 335 629 493 596 C628 568 798 614 930 585 C1028 565 1113 582 1190 566" stroke="#f8f1df" stroke-width="2"/>
+          <path class="water-line" d="M114 679 C260 659 365 691 492 667 C651 637 795 689 943 654 C1036 632 1124 650 1190 637" stroke="#d6e6d5" stroke-width="2.4"/>
+          <path class="water-line" d="M0 456 C100 444 173 466 250 453 C355 434 452 466 549 447" stroke="#f5efd9" stroke-width="2" opacity=".8"/>
+        </g>
+
+        <g opacity=".2">
+          <path d="M0 430 C145 452 247 421 366 438 C487 456 599 436 713 422 C857 404 1028 436 1200 405 L1200 442 C1047 469 910 444 755 462 C612 478 515 493 373 470 C234 448 118 479 0 459Z" fill="#f8f1df"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="mist"></div>
+    <div class="water-sparkle"></div>
+    <div class="credit">翠绿 · 青灰 · 暖白</div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>雨后江南</title>
+  <style>
+    :root {
+      --sky-top: #dff5f2;
+      --sky-mid: #f7f3cf;
+      --sky-low: #f6fff9;
+      --ink: #29434b;
+      --wall: #f3f0df;
+      --wall-shade: #dedbc4;
+      --moss: #77a77b;
+      --path: #70898b;
+      --path-dark: #4f686c;
+      --sun: #ffe89b;
+      --peach: #d83343;
+      --leaf: #4c8d5a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+      background:
+        radial-gradient(circle at 69% 18%, rgba(255, 238, 165, .88) 0 5%, rgba(255, 238, 165, .28) 11%, transparent 28%),
+        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 38%, var(--sky-low) 64%, #d6ece2 100%);
+    }
+
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 640px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 48% 48%, transparent 0 55%, rgba(255, 255, 255, .18) 78%, rgba(109, 154, 153, .16) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, .16), transparent 32%, rgba(255, 255, 255, .1) 100%);
+      mix-blend-mode: screen;
+    }
+
+    .cloud {
+      position: absolute;
+      height: clamp(100px, 15vw, 210px);
+      border-radius: 999px;
+      filter: blur(.5px);
+      opacity: .9;
+      background:
+        radial-gradient(circle at 16% 52%, rgba(255, 255, 255, .96) 0 26%, transparent 27%),
+        radial-gradient(circle at 35% 38%, rgba(255, 255, 255, .95) 0 32%, transparent 33%),
+        radial-gradient(circle at 58% 49%, rgba(249, 252, 239, .92) 0 31%, transparent 32%),
+        radial-gradient(circle at 80% 54%, rgba(235, 243, 232, .9) 0 24%, transparent 25%),
+        linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(220, 232, 222, .62));
+    }
+
+    .cloud.one {
+      top: 2vh;
+      left: -9vw;
+      width: 55vw;
+      animation: cloudDrift 30s ease-in-out infinite alternate;
+    }
+
+    .cloud.two {
+      top: 5vh;
+      right: -12vw;
+      width: 62vw;
+      transform: scaleY(.82);
+      opacity: .82;
+      animation: cloudDriftReverse 35s ease-in-out infinite alternate;
+    }
+
+    .cloud.three {
+      top: 18vh;
+      left: 22vw;
+      width: 36vw;
+      height: clamp(72px, 10vw, 130px);
+      opacity: .6;
+      animation: cloudFloat 24s ease-in-out infinite;
+    }
+
+    .sun {
+      position: absolute;
+      top: 8vh;
+      right: 22vw;
+      width: clamp(94px, 11vw, 170px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff8ce 0 22%, #ffe98f 45%, rgba(255, 219, 108, .38) 66%, transparent 74%);
+      filter: blur(.4px);
+      animation: sunGlow 5.8s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .beam {
+      position: absolute;
+      top: 14vh;
+      right: 14vw;
+      width: 16vw;
+      height: 98vh;
+      min-width: 120px;
+      transform-origin: 50% 0;
+      border-radius: 45% 45% 50% 50%;
+      background: linear-gradient(180deg, rgba(255, 240, 158, .52), rgba(255, 247, 199, .24) 48%, rgba(255, 255, 255, 0));
+      filter: blur(13px);
+      mix-blend-mode: screen;
+      opacity: .78;
+      z-index: 2;
+      animation: beamPulse 7s ease-in-out infinite;
+    }
+
+    .beam.b1 {
+      transform: rotate(22deg);
+    }
+
+    .beam.b2 {
+      right: 31vw;
+      width: 10vw;
+      opacity: .54;
+      transform: rotate(9deg);
+      animation-delay: -2.2s;
+    }
+
+    .beam.b3 {
+      right: 4vw;
+      width: 13vw;
+      opacity: .42;
+      transform: rotate(34deg);
+      animation-delay: -4s;
+    }
+
+    .rainbow {
+      position: absolute;
+      left: 7vw;
+      top: 16vh;
+      width: min(45vw, 680px);
+      aspect-ratio: 2 / 1;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      background:
+        linear-gradient(#dff5f2, #dff5f2) padding-box,
+        conic-gradient(from 255deg at 50% 100%, rgba(224, 64, 73, .08), rgba(239, 162, 75, .42), rgba(248, 225, 91, .44), rgba(96, 180, 111, .4), rgba(86, 155, 219, .34), rgba(144, 102, 198, .18), rgba(224, 64, 73, .05)) border-box;
+      border: clamp(12px, 2vw, 26px) solid transparent;
+      mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+      -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      opacity: .62;
+      filter: blur(.45px);
+      z-index: 2;
+      animation: rainbowBreathe 8s ease-in-out infinite;
+    }
+
+    .mountain {
+      position: absolute;
+      left: -10vw;
+      right: -10vw;
+      bottom: 29vh;
+      height: 30vh;
+      z-index: 0;
+      background:
+        radial-gradient(90% 75% at 22% 100%, rgba(109, 159, 142, .32) 0 45%, transparent 46%),
+        radial-gradient(78% 72% at 60% 100%, rgba(116, 169, 150, .28) 0 46%, transparent 47%),
+        radial-gradient(80% 82% at 89% 100%, rgba(86, 140, 131, .25) 0 47%, transparent 48%);
+      filter: blur(1.2px);
+    }
+
+    .water {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 25vh;
+      height: 17vh;
+      z-index: 1;
+      background:
+        repeating-linear-gradient(175deg, rgba(255, 255, 255, .24) 0 2px, transparent 2px 18px),
+        linear-gradient(180deg, rgba(201, 232, 220, .58), rgba(180, 220, 213, .24));
+      clip-path: polygon(0 28%, 100% 10%, 100% 100%, 0 100%);
+      opacity: .8;
+    }
+
+    .village {
+      position: absolute;
+      inset: auto 0 24vh 0;
+      height: 26vh;
+      z-index: 3;
+    }
+
+    .house {
+      position: absolute;
+      bottom: 0;
+      width: clamp(180px, 18vw, 310px);
+      height: clamp(130px, 13vw, 220px);
+      background: linear-gradient(180deg, #fbfaf0, #e8e4ce);
+      border: 1px solid rgba(121, 123, 106, .28);
+      box-shadow: 0 22px 36px rgba(59, 93, 91, .13);
+    }
+
+    .house::before {
+      content: "";
+      position: absolute;
+      left: -8%;
+      right: -8%;
+      top: -30%;
+      height: 40%;
+      background: linear-gradient(160deg, #1f3138 0 48%, #38565c 49% 100%);
+      clip-path: polygon(0 100%, 10% 35%, 50% 0, 90% 35%, 100% 100%);
+      box-shadow: 0 10px 0 rgba(20, 42, 46, .12);
+    }
+
+    .house::after {
+      content: "";
+      position: absolute;
+      inset: 28% 18% auto auto;
+      width: 23%;
+      height: 34%;
+      border-radius: 3px;
+      background:
+        linear-gradient(90deg, transparent 47%, rgba(70, 78, 76, .28) 48% 52%, transparent 53%),
+        linear-gradient(0deg, transparent 47%, rgba(70, 78, 76, .28) 48% 52%, transparent 53%),
+        rgba(169, 198, 190, .36);
+      border: 1px solid rgba(88, 104, 98, .2);
+    }
+
+    .house.left {
+      left: 2vw;
+      transform: scale(.92);
+    }
+
+    .house.mid {
+      left: 20vw;
+      bottom: 1vh;
+      transform: scale(1.05);
+    }
+
+    .house.right {
+      right: 9vw;
+      bottom: -1vh;
+      transform: scale(.86);
+    }
+
+    .wall {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 18vh;
+      height: 18vh;
+      z-index: 4;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(122, 160, 119, .28) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 54% 66%, rgba(115, 151, 113, .22) 0 2px, transparent 2.5px),
+        linear-gradient(180deg, rgba(255, 255, 255, .76), rgba(244, 241, 223, .96) 38%, var(--wall));
+      border-top: 10px solid rgba(222, 221, 203, .92);
+      box-shadow: 0 -12px 20px rgba(255, 255, 255, .2), 0 14px 24px rgba(67, 95, 91, .14);
+    }
+
+    .wall::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -18px;
+      height: 18px;
+      background:
+        repeating-linear-gradient(90deg, #7b8b89 0 34px, #6d7f7d 34px 68px);
+      clip-path: polygon(0 45%, 100% 0, 100% 100%, 0 100%);
+      opacity: .75;
+    }
+
+    .gate {
+      position: absolute;
+      left: 52%;
+      bottom: 18vh;
+      width: clamp(130px, 13vw, 210px);
+      height: 22vh;
+      z-index: 5;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #253f44, #35585c 52%, #243d42);
+      border-radius: 50% 50% 0 0 / 42% 42% 0 0;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), 0 18px 20px rgba(30, 62, 62, .18);
+    }
+
+    .gate::before {
+      content: "";
+      position: absolute;
+      inset: 12% 12% 0;
+      border-left: 1px solid rgba(255, 255, 255, .13);
+      border-right: 1px solid rgba(0, 0, 0, .15);
+      background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 24px);
+      border-radius: 50% 50% 0 0 / 38% 38% 0 0;
+    }
+
+    .branch {
+      position: absolute;
+      right: 2vw;
+      top: 31vh;
+      width: min(42vw, 650px);
+      height: 30vh;
+      z-index: 7;
+      transform: rotate(-6deg);
+    }
+
+    .stem,
+    .twig {
+      position: absolute;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #5e3b2c, #7a4f35, #4d3028);
+      transform-origin: right center;
+      box-shadow: 0 2px 3px rgba(67, 56, 45, .16);
+    }
+
+    .stem {
+      right: 0;
+      top: 54%;
+      width: 88%;
+      transform: rotate(177deg);
+    }
+
+    .twig.t1 {
+      right: 38%;
+      top: 45%;
+      width: 30%;
+      transform: rotate(136deg);
+    }
+
+    .twig.t2 {
+      right: 55%;
+      top: 54%;
+      width: 24%;
+      transform: rotate(212deg);
+    }
+
+    .twig.t3 {
+      right: 20%;
+      top: 60%;
+      width: 22%;
+      transform: rotate(218deg);
+    }
+
+    .leaf,
+    .blossom,
+    .drop {
+      position: absolute;
+      transform-origin: center;
+    }
+
+    .leaf {
+      width: 38px;
+      height: 18px;
+      border-radius: 100% 0 100% 0;
+      background: linear-gradient(135deg, #6bb36c, #2e7f51);
+      box-shadow: inset 8px 0 10px rgba(255, 255, 255, .22);
+    }
+
+    .leaf.l1 { right: 34%; top: 32%; transform: rotate(25deg); }
+    .leaf.l2 { right: 48%; top: 62%; transform: rotate(205deg) scale(.85); }
+    .leaf.l3 { right: 15%; top: 47%; transform: rotate(202deg) scale(.9); }
+    .leaf.l4 { right: 66%; top: 38%; transform: rotate(24deg) scale(.72); }
+    .leaf.l5 { right: 25%; top: 70%; transform: rotate(22deg) scale(.64); }
+
+    .blossom {
+      width: 74px;
+      height: 74px;
+      filter: drop-shadow(0 6px 8px rgba(97, 49, 52, .15));
+      animation: flowerSway 4.8s ease-in-out infinite;
+    }
+
+    .blossom::before,
+    .blossom::after,
+    .petal,
+    .petal::before,
+    .petal::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 27px;
+      height: 37px;
+      margin: -27px 0 0 -13px;
+      border-radius: 50% 50% 45% 45%;
+      background: radial-gradient(circle at 54% 24%, #ffd7d3 0 16%, #f05b68 52%, var(--peach) 100%);
+      transform-origin: 50% 88%;
+    }
+
+    .blossom::before { transform: rotate(0deg); }
+    .blossom::after { transform: rotate(72deg); }
+    .petal { transform: rotate(144deg); }
+    .petal::before { transform: rotate(72deg); }
+    .petal::after { transform: rotate(144deg); }
+
+    .heart {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      transform: translate(-50%, -38%);
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffe082 0 28%, #9b4b3d 31% 100%);
+      z-index: 1;
+    }
+
+    .blossom.b1 { right: 38%; top: 10%; transform: scale(.92); }
+    .blossom.b2 { right: 58%; top: 40%; transform: scale(.7) rotate(18deg); animation-delay: -1.6s; }
+    .blossom.b3 { right: 17%; top: 34%; transform: scale(.66) rotate(-8deg); animation-delay: -3s; }
+
+    .drop {
+      width: 12px;
+      height: 18px;
+      border-radius: 50% 50% 58% 58%;
+      background: radial-gradient(circle at 35% 22%, rgba(255, 255, 255, .95) 0 18%, rgba(194, 236, 235, .82) 42%, rgba(99, 174, 184, .45) 100%);
+      box-shadow: 0 8px 12px rgba(80, 130, 136, .16);
+      animation: drip 5.6s ease-in-out infinite;
+    }
+
+    .drop.d1 { right: 31%; top: 70%; }
+    .drop.d2 { right: 58%; top: 60%; transform: scale(.72); animation-delay: -2.1s; }
+    .drop.d3 { right: 15%; top: 62%; transform: scale(.82); animation-delay: -3.5s; }
+
+    .path {
+      position: absolute;
+      left: -10vw;
+      right: -10vw;
+      bottom: -10vh;
+      height: 37vh;
+      z-index: 6;
+      perspective: 450px;
+      transform: rotateX(0deg);
+      background:
+        radial-gradient(ellipse at 69% 20%, rgba(255, 243, 168, .5) 0 8%, transparent 22%),
+        linear-gradient(180deg, rgba(159, 193, 190, .72), var(--path-dark));
+      clip-path: polygon(22% 0, 76% 0, 108% 100%, -8% 100%);
+      box-shadow: inset 0 30px 55px rgba(255, 255, 255, .24);
+    }
+
+    .path::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(103deg, transparent 0 49.4%, rgba(255, 255, 255, .18) 49.8% 50.2%, transparent 50.6%),
+        repeating-linear-gradient(174deg, rgba(38, 69, 74, .4) 0 2px, transparent 2px 58px),
+        repeating-linear-gradient(92deg, rgba(39, 70, 74, .32) 0 2px, transparent 2px 92px);
+      opacity: .8;
+    }
+
+    .path::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 66% 18%, rgba(255, 247, 187, .62) 0 5%, rgba(255, 255, 255, .24) 7%, transparent 22%),
+        repeating-linear-gradient(176deg, transparent 0 30px, rgba(255, 255, 255, .19) 31px 33px, transparent 34px 64px);
+      mix-blend-mode: screen;
+      animation: shimmer 4.2s ease-in-out infinite;
+    }
+
+    .puddle {
+      position: absolute;
+      z-index: 7;
+      bottom: 8vh;
+      width: 22vw;
+      min-width: 210px;
+      height: 6vh;
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse at 50% 50%, rgba(255, 244, 169, .5), rgba(176, 222, 220, .46) 48%, rgba(71, 105, 112, .18) 73%, transparent 74%);
+      filter: blur(.2px);
+      animation: puddleGleam 4s ease-in-out infinite;
+    }
+
+    .puddle.left {
+      left: 18vw;
+      transform: rotate(-5deg);
+    }
+
+    .puddle.right {
+      right: 16vw;
+      bottom: 4vh;
+      transform: scale(.8) rotate(6deg);
+      animation-delay: -1.5s;
+    }
+
+    .bird {
+      position: absolute;
+      z-index: 3;
+      width: 34px;
+      height: 18px;
+      opacity: .72;
+      animation: birdFloat 12s linear infinite;
+    }
+
+    .bird::before,
+    .bird::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      width: 18px;
+      height: 10px;
+      border-top: 2px solid rgba(42, 72, 75, .62);
+      border-radius: 50%;
+    }
+
+    .bird::before {
+      left: 0;
+      transform: rotate(13deg);
+    }
+
+    .bird::after {
+      right: 0;
+      transform: rotate(-13deg);
+    }
+
+    .bird.a { left: 22vw; top: 26vh; animation-delay: -2s; }
+    .bird.b { left: 29vw; top: 22vh; transform: scale(.72); animation-delay: -5.4s; }
+    .bird.c { left: 35vw; top: 29vh; transform: scale(.58); animation-delay: -7.2s; }
+
+    .mist {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 38vh;
+      height: 11vh;
+      z-index: 5;
+      background:
+        radial-gradient(ellipse at 20% 58%, rgba(255, 255, 255, .45) 0 16%, transparent 42%),
+        radial-gradient(ellipse at 58% 48%, rgba(255, 255, 255, .4) 0 18%, transparent 48%),
+        radial-gradient(ellipse at 83% 55%, rgba(255, 255, 255, .35) 0 16%, transparent 45%);
+      filter: blur(12px);
+      animation: mistMove 10s ease-in-out infinite alternate;
+    }
+
+    .title {
+      position: absolute;
+      left: clamp(22px, 5vw, 74px);
+      top: clamp(24px, 7vh, 76px);
+      z-index: 9;
+      max-width: min(430px, 58vw);
+      text-shadow: 0 2px 16px rgba(255, 255, 255, .85);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.5rem, 6.8vw, 6.7rem);
+      line-height: .98;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      font-size: clamp(1rem, 1.65vw, 1.32rem);
+      line-height: 1.8;
+      color: rgba(41, 67, 75, .78);
+    }
+
+    .rain {
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      pointer-events: none;
+      opacity: .36;
+      background-image:
+        linear-gradient(110deg, rgba(255, 255, 255, .76) 0 1px, transparent 1px),
+        linear-gradient(110deg, rgba(255, 255, 255, .44) 0 1px, transparent 1px);
+      background-size: 120px 120px, 190px 190px;
+      background-position: 0 0, 40px 20px;
+      animation: lastDrops 1.8s linear infinite;
+      mask-image: linear-gradient(180deg, transparent, #000 20%, #000 70%, transparent);
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%, #000 70%, transparent);
+    }
+
+    @keyframes cloudDrift {
+      from { transform: translateX(0); }
+      to { transform: translateX(6vw); }
+    }
+
+    @keyframes cloudDriftReverse {
+      from { transform: translateX(0) scaleY(.82); }
+      to { transform: translateX(-7vw) scaleY(.82); }
+    }
+
+    @keyframes cloudFloat {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(3vw, 1.2vh); }
+    }
+
+    @keyframes sunGlow {
+      0%, 100% { transform: scale(1); opacity: .82; }
+      50% { transform: scale(1.06); opacity: .96; }
+    }
+
+    @keyframes beamPulse {
+      0%, 100% { opacity: .44; filter: blur(15px); }
+      50% { opacity: .78; filter: blur(10px); }
+    }
+
+    @keyframes rainbowBreathe {
+      0%, 100% { opacity: .38; transform: translateY(0); }
+      50% { opacity: .72; transform: translateY(-5px); }
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: .38; transform: translateY(0); }
+      50% { opacity: .74; transform: translateY(8px); }
+    }
+
+    @keyframes puddleGleam {
+      0%, 100% { opacity: .58; filter: blur(.2px) brightness(1); }
+      50% { opacity: .92; filter: blur(.2px) brightness(1.18); }
+    }
+
+    @keyframes flowerSway {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 4px; }
+    }
+
+    @keyframes drip {
+      0%, 68%, 100% { opacity: .82; translate: 0 0; }
+      76% { opacity: .95; translate: 0 10px; }
+      86% { opacity: 0; translate: 0 36px; }
+    }
+
+    @keyframes birdFloat {
+      from { translate: -3vw 0; }
+      to { translate: 8vw -2vh; }
+    }
+
+    @keyframes mistMove {
+      from { transform: translateX(-4vw); opacity: .66; }
+      to { transform: translateX(4vw); opacity: .88; }
+    }
+
+    @keyframes lastDrops {
+      from { background-position: 0 0, 40px 20px; }
+      to { background-position: -120px 120px, -150px 210px; }
+    }
+
+    @media (max-width: 720px) {
+      .scene {
+        min-height: 680px;
+      }
+
+      .title {
+        max-width: 68vw;
+      }
+
+      .subtitle {
+        max-width: 15em;
+      }
+
+      .rainbow {
+        left: -14vw;
+        top: 20vh;
+        width: 75vw;
+      }
+
+      .sun {
+        right: 10vw;
+      }
+
+      .beam {
+        right: 5vw;
+        width: 24vw;
+      }
+
+      .village {
+        bottom: 24vh;
+      }
+
+      .house.left {
+        left: -18vw;
+      }
+
+      .house.mid {
+        left: 22vw;
+      }
+
+      .house.right {
+        right: -20vw;
+      }
+
+      .branch {
+        right: -16vw;
+        top: 35vh;
+        width: 86vw;
+      }
+
+      .wall {
+        height: 17vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene" aria-label="雨后初晴的江南清晨">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="beam b1" aria-hidden="true"></div>
+    <div class="beam b2" aria-hidden="true"></div>
+    <div class="beam b3" aria-hidden="true"></div>
+    <div class="rainbow" aria-hidden="true"></div>
+    <div class="cloud one" aria-hidden="true"></div>
+    <div class="cloud two" aria-hidden="true"></div>
+    <div class="cloud three" aria-hidden="true"></div>
+    <div class="mountain" aria-hidden="true"></div>
+    <div class="water" aria-hidden="true"></div>
+    <div class="village" aria-hidden="true">
+      <div class="house left"></div>
+      <div class="house mid"></div>
+      <div class="house right"></div>
+    </div>
+    <div class="mist" aria-hidden="true"></div>
+    <div class="wall" aria-hidden="true"></div>
+    <div class="gate" aria-hidden="true"></div>
+    <section class="title">
+      <h1>雨后江南</h1>
+      <p class="subtitle">清晨云开，金光落在湿润青石上；墙头红杏含雨，远处鸟声入烟水。</p>
+    </section>
+    <div class="branch" aria-hidden="true">
+      <span class="stem"></span>
+      <span class="twig t1"></span>
+      <span class="twig t2"></span>
+      <span class="twig t3"></span>
+      <span class="leaf l1"></span>
+      <span class="leaf l2"></span>
+      <span class="leaf l3"></span>
+      <span class="leaf l4"></span>
+      <span class="leaf l5"></span>
+      <span class="blossom b1"><span class="petal"></span><span class="heart"></span></span>
+      <span class="blossom b2"><span class="petal"></span><span class="heart"></span></span>
+      <span class="blossom b3"><span class="petal"></span><span class="heart"></span></span>
+      <span class="drop d1"></span>
+      <span class="drop d2"></span>
+      <span class="drop d3"></span>
+    </div>
+    <div class="path" aria-hidden="true"></div>
+    <div class="puddle left" aria-hidden="true"></div>
+    <div class="puddle right" aria-hidden="true"></div>
+    <div class="bird a" aria-hidden="true"></div>
+    <div class="bird b" aria-hidden="true"></div>
+    <div class="bird c" aria-hidden="true"></div>
+    <div class="rain" aria-hidden="true"></div>
+  </main>
+</body>
+</html>
