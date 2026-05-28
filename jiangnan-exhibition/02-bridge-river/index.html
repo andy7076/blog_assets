@@ -22,10 +22,16 @@
       box-sizing: border-box;
     }
 
+    html {
+      overflow: clip;
+    }
+
     body {
+      position: fixed;
+      inset: 0;
       margin: 0;
-      min-height: 100vh;
-      overflow-x: hidden;
+      height: 100%;
+      overflow: clip;
       color: var(--ink);
       font-family: "STSong", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
       background:
@@ -35,7 +41,9 @@
 
     .scene {
       position: relative;
+      height: 100vh;
       min-height: 100vh;
+      overflow: hidden;
       display: grid;
       place-items: center;
       isolation: isolate;
@@ -452,5 +460,23 @@
     <div class="water-sparkle"></div>
     <div class="credit">翠绿 · 青灰 · 暖白</div>
   </main>
+
+<script>
+(function(){
+  "use strict";
+  function lock() {
+    var h = window.innerHeight;
+    document.documentElement.style.setProperty("height", h + "px", "important");
+    document.documentElement.style.setProperty("overflow", "hidden", "important");
+    document.body.style.setProperty("height", h + "px", "important");
+    document.body.style.setProperty("overflow", "hidden", "important");
+    window.scrollTo(0, 0);
+  }
+  lock();
+  window.addEventListener("resize", lock);
+  window.addEventListener("scroll", function(){ window.scrollTo(0, 0); }, {capture: true, passive: false});
+  document.addEventListener("touchmove", function(e){ e.preventDefault(); }, {passive: false});
+})();
+</script>
 </body>
 </html>

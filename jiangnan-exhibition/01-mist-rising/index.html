@@ -22,12 +22,15 @@
     html,
     body {
       width: 100%;
-      min-height: 100%;
+      height: 100%;
       margin: 0;
+      overflow: clip;
     }
 
     body {
-      overflow-x: hidden;
+      position: fixed;
+      inset: 0;
+      overflow: clip;
       color: var(--ink);
       font-family: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
       background:
@@ -52,7 +55,8 @@
 
     .scene {
       position: relative;
-      min-height: 100svh;
+      height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
       isolation: isolate;
     }
@@ -593,5 +597,23 @@
       }
     })();
   </script>
+
+<script>
+(function(){
+  "use strict";
+  function lock() {
+    var h = window.innerHeight;
+    document.documentElement.style.setProperty("height", h + "px", "important");
+    document.documentElement.style.setProperty("overflow", "hidden", "important");
+    document.body.style.setProperty("height", h + "px", "important");
+    document.body.style.setProperty("overflow", "hidden", "important");
+    window.scrollTo(0, 0);
+  }
+  lock();
+  window.addEventListener("resize", lock);
+  window.addEventListener("scroll", function(){ window.scrollTo(0, 0); }, {capture: true, passive: false});
+  document.addEventListener("touchmove", function(e){ e.preventDefault(); }, {passive: false});
+})();
+</script>
 </body>
 </html>
