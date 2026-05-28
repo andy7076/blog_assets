@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>月夜江南</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --midnight: #071229;
+      --deep-blue: #0d2342;
+      --river-blue: #102e4f;
+      --silver: #eaf4ff;
+      --moon: #f8fbff;
+      --lantern: #f6b34c;
+      --lantern-hot: #ffe1a1;
+      --ink: #030817;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--midnight);
+      font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+      color: var(--silver);
+    }
+
+    body {
+      height: 100vh;
+    }
+
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 620px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 68% 20%, rgba(209, 228, 255, 0.24), transparent 16%),
+        radial-gradient(circle at 15% 9%, rgba(118, 159, 221, 0.16), transparent 20%),
+        linear-gradient(180deg, #050a1c 0%, #0b1731 38%, #102943 58%, #0a1729 100%);
+      isolation: isolate;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.96) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(206,225,255,0.78) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,0.56) 0 1px, transparent 1.2px);
+      background-size: 180px 150px, 230px 190px, 130px 120px;
+      background-position: 12px 20px, 70px 44px, 28px 76px;
+      opacity: 0.72;
+      animation: starDrift 18s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 0%, rgba(240, 247, 255, 0.04) 45%, rgba(5, 10, 25, 0.22) 100%),
+        radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.2) 72%, rgba(0,0,0,0.54) 100%);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .moon {
+      position: absolute;
+      top: 8.8vh;
+      left: 50%;
+      width: clamp(120px, 14vw, 190px);
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 34% 28%, rgba(255,255,255,0.96), transparent 13%),
+        radial-gradient(circle at 62% 60%, rgba(190, 207, 230, 0.22), transparent 18%),
+        radial-gradient(circle, var(--moon) 0%, #edf5ff 47%, #d8e8ff 70%, rgba(210,229,255,0.82) 100%);
+      box-shadow:
+        0 0 28px rgba(236, 246, 255, 0.9),
+        0 0 90px rgba(191, 220, 255, 0.55),
+        0 0 170px rgba(137, 181, 239, 0.32);
+      z-index: 4;
+    }
+
+    .moon::after {
+      content: "";
+      position: absolute;
+      inset: -120%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224, 240, 255, 0.18), transparent 58%);
+      animation: moonGlow 5s ease-in-out infinite alternate;
+    }
+
+    .title {
+      position: absolute;
+      top: 7vh;
+      left: clamp(24px, 7vw, 96px);
+      z-index: 12;
+      text-shadow: 0 8px 28px rgba(0,0,0,0.42);
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(38px, 7vw, 96px);
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1;
+      color: rgba(242, 248, 255, 0.94);
+      writing-mode: vertical-rl;
+    }
+
+    .title span {
+      display: block;
+      margin-top: 20px;
+      padding-left: 4px;
+      font-size: clamp(13px, 1.5vw, 18px);
+      letter-spacing: 0.34em;
+      color: rgba(255, 224, 166, 0.86);
+      writing-mode: vertical-rl;
+    }
+
+    .moonbeam {
+      position: absolute;
+      left: 50%;
+      top: 22vh;
+      width: min(40vw, 520px);
+      height: 65vh;
+      transform: translateX(-50%);
+      background:
+        linear-gradient(90deg, transparent, rgba(229, 243, 255, 0.20), transparent),
+        radial-gradient(ellipse at center top, rgba(244, 250, 255, 0.28), transparent 70%);
+      clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+      filter: blur(13px);
+      opacity: 0.56;
+      mix-blend-mode: screen;
+      z-index: 3;
+    }
+
+    .far-hills {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 38vh;
+      width: 100%;
+      height: 22vh;
+      z-index: 5;
+      opacity: 0.7;
+      color: #08142a;
+    }
+
+    .town {
+      position: absolute;
+      left: -3vw;
+      right: -3vw;
+      bottom: 34vh;
+      height: 26vh;
+      z-index: 7;
+      filter: drop-shadow(0 -12px 28px rgba(26, 55, 92, 0.36));
+    }
+
+    .town svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .town .rim {
+      fill: rgba(37, 70, 108, 0.7);
+    }
+
+    .town .ink {
+      fill: #040917;
+    }
+
+    .town .wall {
+      fill: #071224;
+    }
+
+    .town .window {
+      fill: rgba(248, 178, 76, 0.8);
+      filter: drop-shadow(0 0 9px rgba(248, 178, 76, 0.78));
+    }
+
+    .river {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 42vh;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(212, 235, 255, 0.22), transparent 48%),
+        linear-gradient(180deg, #102d4b 0%, #0b213b 46%, #071326 100%);
+      z-index: 8;
+    }
+
+    .river::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(178deg, rgba(255,255,255,0.22) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(2deg, rgba(135, 179, 219, 0.14) 0 2px, transparent 2px 24px);
+      opacity: 0.36;
+      transform: skewY(-1deg);
+      animation: waterMove 8s linear infinite;
+    }
+
+    .river::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -5vh;
+      width: min(52vw, 720px);
+      height: 46vh;
+      transform: translateX(-50%);
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(238, 248, 255, 0.42) 0 2px,
+          rgba(238, 248, 255, 0.12) 2px 5px,
+          transparent 5px 20px
+        ),
+        radial-gradient(ellipse at center, rgba(241, 249, 255, 0.42), transparent 64%);
+      clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+      filter: blur(2px);
+      opacity: 0.62;
+      animation: reflection 5.4s ease-in-out infinite alternate;
+    }
+
+    .moon-reflection {
+      position: absolute;
+      left: 50%;
+      top: 2vh;
+      width: clamp(140px, 18vw, 260px);
+      height: 30vh;
+      transform: translateX(-50%);
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(250, 253, 255, 0.78) 0 4px,
+          rgba(203, 226, 248, 0.18) 5px 11px,
+          transparent 12px 21px
+        );
+      border-radius: 50%;
+      filter: blur(1.4px);
+      opacity: 0.72;
+      mask-image: radial-gradient(ellipse, #000 0%, transparent 72%);
+      animation: shimmer 3.8s ease-in-out infinite alternate;
+      z-index: 3;
+    }
+
+    .architecture-reflection {
+      position: absolute;
+      left: -2vw;
+      right: -2vw;
+      top: -2vh;
+      height: 16vh;
+      background:
+        linear-gradient(180deg, rgba(3, 8, 20, 0.72), transparent),
+        repeating-linear-gradient(90deg, rgba(2, 6, 17, 0.58) 0 42px, transparent 42px 64px);
+      clip-path: polygon(0 0, 100% 0, 94% 44%, 84% 28%, 76% 62%, 67% 36%, 56% 70%, 48% 34%, 36% 62%, 28% 30%, 18% 52%, 8% 26%, 0 48%);
+      filter: blur(3px);
+      opacity: 0.55;
+      z-index: 2;
+      animation: reflection 4.7s ease-in-out infinite alternate-reverse;
+    }
+
+    .boat {
+      position: absolute;
+      right: 12vw;
+      bottom: 18vh;
+      width: clamp(260px, 32vw, 500px);
+      height: clamp(110px, 14vw, 190px);
+      z-index: 13;
+      animation: boatFloat 5s ease-in-out infinite;
+    }
+
+    .boat svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+      filter: drop-shadow(0 18px 18px rgba(0,0,0,0.38));
+    }
+
+    .boat-light {
+      position: absolute;
+      right: 38%;
+      top: 46%;
+      width: clamp(36px, 4vw, 58px);
+      height: clamp(36px, 4vw, 58px);
+      transform: translate(50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 231, 169, 0.8), rgba(240, 158, 57, 0.22) 38%, transparent 72%);
+      filter: blur(4px);
+      animation: lanternGlow 2.5s ease-in-out infinite alternate;
+    }
+
+    .lanterns {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 11;
+    }
+
+    .lantern {
+      position: absolute;
+      width: clamp(18px, 2.2vw, 30px);
+      height: clamp(27px, 3.2vw, 44px);
+      border-radius: 48% 48% 44% 44%;
+      background:
+        linear-gradient(90deg, rgba(88, 31, 22, 0.46), transparent 30%, transparent 70%, rgba(88, 31, 22, 0.46)),
+        radial-gradient(circle at 50% 40%, var(--lantern-hot), var(--lantern) 58%, #9d3f2c 100%);
+      box-shadow:
+        0 0 14px rgba(246, 179, 76, 0.76),
+        0 0 38px rgba(246, 179, 76, 0.45);
+      animation: lanternSway 3.8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    .lantern::before,
+    .lantern::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(91, 35, 28, 0.94);
+    }
+
+    .lantern::before {
+      top: -12px;
+      width: 1px;
+      height: 14px;
+    }
+
+    .lantern::after {
+      bottom: -10px;
+      width: 2px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(246, 179, 76, 0.92);
+      box-shadow: 0 0 8px rgba(246, 179, 76, 0.8);
+    }
+
+    .lantern.one {
+      left: 14vw;
+      bottom: 42vh;
+      animation-delay: -1.5s;
+    }
+
+    .lantern.two {
+      left: 25vw;
+      bottom: 39vh;
+      transform: scale(0.8);
+      animation-delay: -0.5s;
+    }
+
+    .lantern.three {
+      right: 21vw;
+      bottom: 43vh;
+      transform: scale(0.9);
+      animation-delay: -2.2s;
+    }
+
+    .lantern.four {
+      right: 7vw;
+      bottom: 38vh;
+      transform: scale(0.72);
+      animation-delay: -0.9s;
+    }
+
+    .willow {
+      position: absolute;
+      top: 0;
+      width: clamp(170px, 22vw, 340px);
+      height: 62vh;
+      z-index: 10;
+      opacity: 0.82;
+      pointer-events: none;
+    }
+
+    .willow.left {
+      left: -24px;
+    }
+
+    .willow.right {
+      right: -38px;
+      transform: scaleX(-1);
+      opacity: 0.48;
+    }
+
+    .willow svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.3));
+    }
+
+    .mist {
+      position: absolute;
+      left: -12vw;
+      right: -12vw;
+      bottom: 26vh;
+      height: 26vh;
+      z-index: 14;
+      pointer-events: none;
+      opacity: 0.72;
+      filter: blur(12px);
+      background:
+        radial-gradient(ellipse at 12% 64%, rgba(225, 240, 255, 0.25), transparent 38%),
+        radial-gradient(ellipse at 36% 40%, rgba(221, 236, 250, 0.18), transparent 35%),
+        radial-gradient(ellipse at 68% 58%, rgba(235, 246, 255, 0.21), transparent 40%),
+        radial-gradient(ellipse at 88% 36%, rgba(229, 242, 255, 0.16), transparent 34%);
+      animation: mistFloat 12s ease-in-out infinite alternate;
+    }
+
+    .foreground-reeds {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -2px;
+      height: 18vh;
+      z-index: 16;
+      pointer-events: none;
+      color: #030713;
+    }
+
+    .foreground-reeds svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .poem {
+      position: absolute;
+      right: clamp(22px, 5vw, 72px);
+      top: 9vh;
+      z-index: 12;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: rgba(235, 246, 255, 0.78);
+      text-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    }
+
+    .poem p {
+      margin: 0;
+      writing-mode: vertical-rl;
+      line-height: 1.8;
+      font-size: clamp(14px, 1.5vw, 20px);
+      letter-spacing: 0.16em;
+    }
+
+    .poem .seal {
+      width: 28px;
+      height: 58px;
+      border: 1px solid rgba(249, 102, 70, 0.72);
+      color: rgba(255, 137, 95, 0.88);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      line-height: 1.2;
+      writing-mode: vertical-rl;
+      margin-top: 1.2em;
+      background: rgba(91, 24, 24, 0.12);
+    }
+
+    @keyframes starDrift {
+      from {
+        transform: translateY(0);
+        opacity: 0.62;
+      }
+      to {
+        transform: translateY(8px);
+        opacity: 0.86;
+      }
+    }
+
+    @keyframes moonGlow {
+      from {
+        opacity: 0.65;
+        transform: scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1.04);
+      }
+    }
+
+    @keyframes waterMove {
+      from {
+        background-position: 0 0, 0 0;
+      }
+      to {
+        background-position: 140px 28px, -90px 36px;
+      }
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-50%) scaleX(0.92) skewX(-3deg);
+        opacity: 0.52;
+      }
+      to {
+        transform: translateX(-50%) scaleX(1.12) skewX(3deg);
+        opacity: 0.82;
+      }
+    }
+
+    @keyframes reflection {
+      from {
+        transform: translateX(-50%) skewX(-2deg);
+      }
+      to {
+        transform: translateX(-50%) skewX(2deg);
+      }
+    }
+
+    @keyframes boatFloat {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-0.4deg);
+      }
+      50% {
+        transform: translateY(-9px) rotate(0.5deg);
+      }
+    }
+
+    @keyframes lanternGlow {
+      from {
+        opacity: 0.64;
+        transform: translate(50%, -50%) scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: translate(50%, -50%) scale(1.08);
+      }
+    }
+
+    @keyframes lanternSway {
+      0%,
+      100% {
+        rotate: -3deg;
+      }
+      50% {
+        rotate: 4deg;
+      }
+    }
+
+    @keyframes mistFloat {
+      from {
+        transform: translateX(-3vw) translateY(0);
+      }
+      to {
+        transform: translateX(5vw) translateY(-10px);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .scene {
+        min-height: 700px;
+      }
+
+      .title {
+        left: 18px;
+        top: 6vh;
+      }
+
+      .poem {
+        right: 18px;
+        top: 6vh;
+        gap: 8px;
+      }
+
+      .poem p {
+        font-size: 13px;
+      }
+
+      .moon {
+        top: 13vh;
+      }
+
+      .town {
+        bottom: 36vh;
+        height: 22vh;
+        width: 170vw;
+        left: -36vw;
+      }
+
+      .boat {
+        right: 4vw;
+        bottom: 17vh;
+        width: 78vw;
+      }
+
+      .lantern.one {
+        left: 24vw;
+      }
+
+      .lantern.two {
+        display: none;
+      }
+
+      .lantern.three {
+        right: 28vw;
+      }
+
+      .willow.right {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene" aria-label="月夜江南水乡夜景">
+    <div class="moon" aria-hidden="true"></div>
+    <div class="moonbeam" aria-hidden="true"></div>
+
+    <div class="title">
+      <h1>月夜江南</h1>
+      <span>水色银光</span>
+    </div>
+
+    <div class="poem" aria-label="诗意题字">
+      <p>一篷烟水泊清辉</p>
+      <p>半城灯火入梦来</p>
+      <div class="seal">江南</div>
+    </div>
+
+    <div class="willow left" aria-hidden="true">
+      <svg viewBox="0 0 260 620" preserveAspectRatio="none">
+        <path d="M18 0 C40 88 35 178 22 260 C10 340 18 466 0 620 L0 0 Z" fill="#020713"/>
+        <g stroke="#07142b" stroke-width="7" stroke-linecap="round" fill="none">
+          <path d="M42 34 C98 108 94 210 62 332"/>
+          <path d="M70 12 C152 102 130 246 112 414"/>
+          <path d="M105 4 C196 96 188 260 164 520"/>
+          <path d="M142 14 C228 112 230 256 214 442"/>
+        </g>
+        <g stroke="#17375a" stroke-width="2.5" stroke-linecap="round" opacity="0.72">
+          <path d="M64 110 C52 170 44 230 28 298"/>
+          <path d="M84 142 C76 216 72 276 56 366"/>
+          <path d="M112 102 C112 190 98 280 82 404"/>
+          <path d="M145 132 C142 218 132 326 112 500"/>
+          <path d="M174 118 C178 224 166 340 150 552"/>
+          <path d="M210 142 C210 226 202 316 188 452"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="willow right" aria-hidden="true">
+      <svg viewBox="0 0 260 620" preserveAspectRatio="none">
+        <path d="M18 0 C40 88 35 178 22 260 C10 340 18 466 0 620 L0 0 Z" fill="#020713"/>
+        <g stroke="#07142b" stroke-width="7" stroke-linecap="round" fill="none">
+          <path d="M42 34 C98 108 94 210 62 332"/>
+          <path d="M70 12 C152 102 130 246 112 414"/>
+          <path d="M105 4 C196 96 188 260 164 520"/>
+          <path d="M142 14 C228 112 230 256 214 442"/>
+        </g>
+        <g stroke="#17375a" stroke-width="2.5" stroke-linecap="round" opacity="0.72">
+          <path d="M64 110 C52 170 44 230 28 298"/>
+          <path d="M84 142 C76 216 72 276 56 366"/>
+          <path d="M112 102 C112 190 98 280 82 404"/>
+          <path d="M145 132 C142 218 132 326 112 500"/>
+          <path d="M174 118 C178 224 166 340 150 552"/>
+          <path d="M210 142 C210 226 202 316 188 452"/>
+        </g>
+      </svg>
+    </div>
+
+    <svg class="far-hills" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="currentColor" d="M0 229 C94 170 154 199 244 138 C337 75 440 170 521 126 C620 72 688 113 778 174 C871 237 946 155 1042 116 C1138 78 1204 140 1288 180 C1357 213 1403 210 1440 188 L1440 320 L0 320 Z"/>
+      <path fill="#0d2440" opacity="0.6" d="M0 260 C122 204 209 241 320 198 C454 146 522 207 651 171 C778 136 828 236 950 194 C1082 148 1168 196 1270 220 C1338 237 1382 236 1440 210 L1440 320 L0 320 Z"/>
+    </svg>
+
+    <section class="town" aria-hidden="true">
+      <svg viewBox="0 0 1600 320" preserveAspectRatio="none">
+        <path class="rim" d="M0 236 L54 205 L98 227 L137 186 L204 225 L250 170 L314 224 L356 198 L404 230 L456 188 L514 229 L565 205 L618 232 L672 182 L738 228 L794 195 L852 232 L910 169 L978 226 L1032 198 L1092 236 L1142 184 L1210 230 L1264 206 L1322 236 L1380 174 L1456 228 L1506 205 L1600 240 L1600 320 L0 320 Z"/>
+        <path class="ink" d="M0 258 L0 246 L42 222 L76 236 L112 196 L168 235 L210 182 L268 238 L316 205 L364 238 L414 202 L464 238 L510 215 L556 238 L606 196 L662 237 L712 208 L762 238 L824 181 L884 237 L942 208 L1002 242 L1054 198 L1114 238 L1172 213 L1228 242 L1288 188 L1354 238 L1412 216 L1600 252 L1600 320 L0 320 Z"/>
+        <g class="wall">
+          <rect x="44" y="236" width="142" height="84"/>
+          <rect x="236" y="236" width="150" height="84"/>
+          <rect x="430" y="236" width="124" height="84"/>
+          <rect x="650" y="236" width="158" height="84"/>
+          <rect x="872" y="236" width="136" height="84"/>
+          <rect x="1088" y="238" width="166" height="82"/>
+          <rect x="1344" y="238" width="160" height="82"/>
+        </g>
+        <path class="ink" d="M46 235 L118 184 L190 235 Z M232 236 L316 171 L394 236 Z M428 236 L496 190 L564 236 Z M646 236 L730 183 L812 236 Z M866 237 L940 174 L1012 237 Z M1082 238 L1172 185 L1262 238 Z M1336 238 L1422 178 L1514 238 Z"/>
+        <g class="window">
+          <rect x="90" y="255" width="16" height="26" rx="2"/>
+          <rect x="126" y="255" width="16" height="26" rx="2"/>
+          <rect x="292" y="258" width="18" height="28" rx="2"/>
+          <rect x="690" y="256" width="16" height="26" rx="2"/>
+          <rect x="732" y="256" width="16" height="26" rx="2"/>
+          <rect x="930" y="260" width="18" height="26" rx="2"/>
+          <rect x="1148" y="258" width="16" height="26" rx="2"/>
+          <rect x="1194" y="258" width="16" height="26" rx="2"/>
+          <rect x="1410" y="258" width="18" height="26" rx="2"/>
+        </g>
+        <path class="ink" d="M0 285 C165 274 296 292 460 281 C605 272 724 291 884 280 C1058 268 1218 287 1600 276 L1600 320 L0 320 Z"/>
+      </svg>
+    </section>
+
+    <div class="lanterns" aria-hidden="true">
+      <span class="lantern one"></span>
+      <span class="lantern two"></span>
+      <span class="lantern three"></span>
+      <span class="lantern four"></span>
+    </div>
+
+    <div class="mist" aria-hidden="true"></div>
+
+    <section class="river" aria-hidden="true">
+      <div class="architecture-reflection"></div>
+      <div class="moon-reflection"></div>
+    </section>
+
+    <div class="boat" aria-hidden="true">
+      <div class="boat-light"></div>
+      <svg viewBox="0 0 560 220">
+        <path d="M46 142 C124 168 368 171 505 134 C471 184 410 205 214 200 C128 197 69 178 46 142 Z" fill="#040713"/>
+        <path d="M80 138 C166 159 354 160 478 130 C452 146 390 160 254 163 C166 165 104 153 80 138 Z" fill="#111f2e"/>
+        <path d="M150 138 C168 70 230 38 304 42 C366 45 414 82 430 130 C348 151 232 154 150 138 Z" fill="#050b16"/>
+        <path d="M176 132 C199 86 240 65 303 66 C354 67 389 91 406 128 C334 141 246 143 176 132 Z" fill="#101b2b"/>
+        <path d="M210 119 C230 96 258 86 298 86 C335 86 363 99 383 122 C332 131 266 132 210 119 Z" fill="#020611"/>
+        <path d="M286 42 L286 16" stroke="#030713" stroke-width="7" stroke-linecap="round"/>
+        <path d="M292 19 C330 35 355 58 366 95 C326 86 300 61 292 19 Z" fill="#0b1828"/>
+        <path d="M118 154 C248 184 386 174 514 132" stroke="rgba(224,241,255,0.28)" stroke-width="3" fill="none"/>
+        <path d="M56 167 C134 204 390 207 500 160" stroke="rgba(238,248,255,0.18)" stroke-width="2" fill="none"/>
+        <line x1="418" y1="84" x2="520" y2="42" stroke="#050914" stroke-width="7" stroke-linecap="round"/>
+        <line x1="520" y1="42" x2="536" y2="28" stroke="#111f2e" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="281" cy="207" rx="160" ry="12" fill="rgba(218,239,255,0.16)"/>
+      </svg>
+    </div>
+
+    <div class="foreground-reeds" aria-hidden="true">
+      <svg viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path d="M0 136 C78 112 148 145 225 122 C330 91 413 146 520 113 C610 86 692 142 782 118 C904 84 986 148 1102 117 C1218 87 1326 126 1440 101 L1440 180 L0 180 Z" fill="currentColor"/>
+        <g stroke="currentColor" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M36 176 C48 126 42 89 66 42"/>
+          <path d="M92 178 C98 134 118 102 126 54"/>
+          <path d="M184 176 C176 132 186 100 206 62"/>
+          <path d="M1184 178 C1176 124 1192 88 1226 42"/>
+          <path d="M1272 178 C1280 138 1304 98 1310 56"/>
+          <path d="M1376 178 C1358 126 1368 90 1396 38"/>
+        </g>
+        <g fill="#061229">
+          <ellipse cx="66" cy="42" rx="7" ry="22" transform="rotate(28 66 42)"/>
+          <ellipse cx="126" cy="54" rx="7" ry="24" transform="rotate(-16 126 54)"/>
+          <ellipse cx="206" cy="62" rx="7" ry="22" transform="rotate(19 206 62)"/>
+          <ellipse cx="1226" cy="42" rx="8" ry="25" transform="rotate(34 1226 42)"/>
+          <ellipse cx="1310" cy="56" rx="7" ry="22" transform="rotate(-14 1310 56)"/>
+          <ellipse cx="1396" cy="38" rx="8" ry="26" transform="rotate(24 1396 38)"/>
+        </g>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>
