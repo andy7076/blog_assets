@@ -82,7 +82,7 @@
     .stats {
       min-width: 0;
       display: grid;
-      grid-template-columns: 1fr 0.78fr 0.86fr 0.92fr;
+      grid-template-columns: 1.2fr 0.85fr 0.95fr;
       gap: 6px;
     }
 
@@ -126,65 +126,16 @@
       color: #cf19c6;
     }
 
-    .level-value {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 5px;
-    }
-
-    .level-value small {
-      color: var(--muted);
-      font-size: 0.68rem;
-      font-weight: 950;
-      line-height: 1;
-    }
-
-    .mini-progress {
-      display: block;
-      height: 4px;
-      margin-top: 5px;
-      overflow: hidden;
-      border-radius: 999px;
-      background: rgba(23, 32, 51, 0.14);
-    }
-
-    .mini-progress i {
-      display: block;
-      width: 0%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--cyan), var(--pink));
-      box-shadow: 0 0 12px rgba(255, 61, 242, 0.5);
-      transition: width 120ms ease;
-    }
-
     .hud-actions {
       display: flex;
       gap: 6px;
       pointer-events: auto;
     }
 
-    .lang-select {
-      min-width: 58px;
-      height: 44px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0 8px;
-      background: var(--panel);
-      color: var(--ink);
-      font: inherit;
-      font-size: 0.78rem;
-      font-weight: 950;
-      box-shadow: 0 14px 30px rgba(22, 33, 70, 0.12);
-      backdrop-filter: blur(16px) saturate(1.35);
-      -webkit-backdrop-filter: blur(16px) saturate(1.35);
-    }
-
     .power-hud {
       position: absolute;
       left: max(12px, env(safe-area-inset-left));
-      top: calc(max(10px, env(safe-area-inset-top)) + 108px);
+      top: calc(max(10px, env(safe-area-inset-top)) + 62px);
       z-index: 3;
       display: flex;
       flex-wrap: wrap;
@@ -217,54 +168,6 @@
       height: 10px;
       border-radius: 50%;
       box-shadow: 0 0 12px currentColor;
-    }
-
-    .boss-hud {
-      position: absolute;
-      left: max(12px, env(safe-area-inset-left));
-      right: max(12px, env(safe-area-inset-right));
-      top: calc(max(10px, env(safe-area-inset-top)) + 60px);
-      z-index: 3;
-      display: grid;
-      gap: 5px;
-      pointer-events: none;
-    }
-
-    .boss-hud[hidden] {
-      display: none;
-    }
-
-    .boss-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      color: white;
-      font-size: 0.72rem;
-      font-weight: 950;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.38);
-      text-transform: uppercase;
-    }
-
-    .boss-bar {
-      height: 10px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.62);
-      border-radius: 999px;
-      background: rgba(9, 13, 36, 0.58);
-      box-shadow: 0 12px 28px rgba(8, 13, 36, 0.22);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .boss-bar i {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #ff4c67, #ffb33d, #ff3df2);
-      box-shadow: 0 0 18px rgba(255, 76, 103, 0.68);
-      transition: width 90ms ease;
     }
 
     button {
@@ -400,7 +303,6 @@
     }
 
     .panel {
-      position: relative;
       width: min(100%, 430px);
       max-height: calc(100svh - 32px);
       overflow: auto;
@@ -413,26 +315,10 @@
       box-shadow: 0 24px 64px rgba(10, 16, 45, 0.28);
     }
 
-    .panel-tools {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 1;
-    }
-
-    .panel-tools .lang-select {
-      height: 34px;
-      min-width: 64px;
-      padding: 0 6px;
-      background: rgba(255, 255, 255, 0.82);
-      font-size: 0.74rem;
-    }
-
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-right: 76px;
       margin-bottom: 12px;
     }
 
@@ -636,141 +522,105 @@
   </style>
 </head>
 <body>
-  <main class="game" id="gameRoot" aria-label="Neon Comet Runner game" data-i18n-aria-label="ariaGame">
+  <main class="game" id="gameRoot" aria-label="Neon Comet Runner game">
     <canvas id="gameCanvas" aria-hidden="true"></canvas>
 
-    <section class="top-hud" aria-label="Game status" data-i18n-aria-label="ariaStatus">
+    <section class="top-hud" aria-label="Game status">
       <div class="stats">
         <div class="stat">
-          <span class="label" data-i18n="score">Score</span>
+          <span class="label">Score</span>
           <span class="value" id="scoreText">0</span>
         </div>
         <div class="stat combo">
-          <span class="label" data-i18n="combo">Combo</span>
+          <span class="label">Combo</span>
           <span class="value" id="comboText">x1</span>
         </div>
         <div class="stat">
-          <span class="label" data-i18n="best">Best</span>
+          <span class="label">Best</span>
           <span class="value" id="bestText">0</span>
-        </div>
-        <div class="stat level-stat">
-          <span class="label" data-i18n="level">Level</span>
-          <span class="value level-value"><span id="levelText">L1</span><small id="levelProgressText">0%</small></span>
-          <span class="mini-progress" aria-hidden="true"><i id="levelProgressFill"></i></span>
         </div>
       </div>
       <div class="hud-actions">
-        <select class="lang-select" id="hudLangSelect" aria-label="Language" title="Language" data-i18n-aria-label="language" data-i18n-title="language">
-          <option value="en">EN</option>
-          <option value="zh">简中</option>
-        </select>
-        <button class="control-btn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause" data-i18n-aria-label="pauseGame" data-i18n-title="pause">Ⅱ</button>
+        <button class="control-btn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause">Ⅱ</button>
       </div>
     </section>
 
-    <div class="boss-hud" id="bossHud" hidden aria-label="Boss status" data-i18n-aria-label="ariaBoss">
-      <div class="boss-row"><span id="bossName">Comet Warden</span><span id="bossHpText">100%</span></div>
-      <div class="boss-bar"><i id="bossHpFill"></i></div>
-    </div>
+    <div class="power-hud" id="powerHud" aria-label="Active powerups"></div>
 
-    <div class="power-hud" id="powerHud" aria-label="Active powerups" data-i18n-aria-label="ariaPowers"></div>
-
-    <div class="tip" id="tipText" data-i18n="tipIntro">Touch anywhere and slide. Your fighter moves from its current position and auto-fires.</div>
+    <div class="tip" id="tipText">Touch anywhere and slide. Your fighter moves from its current position and auto-fires.</div>
 
     <div class="dash-wrap">
-      <button class="dash-btn" id="dashBtn" type="button" aria-label="Activate slow motion dash" title="Dash" data-i18n-aria-label="dashAction" data-i18n-title="dash">
+      <button class="dash-btn" id="dashBtn" type="button" aria-label="Activate slow motion dash" title="Dash">
         <i class="dash-meter" id="dashMeter" style="--charge: 100%;"></i>
         <span>↯</span>
       </button>
-      <div class="dash-label" id="dashLabel" data-i18n="dashReady">Dash ready</div>
+      <div class="dash-label" id="dashLabel">Dash ready</div>
     </div>
 
     <div class="flash" id="flash"></div>
 
     <section class="overlay" id="startOverlay" aria-modal="true" role="dialog">
       <div class="panel">
-        <div class="panel-tools">
-          <select class="lang-select lang-sync" id="startLangSelect" aria-label="Language" title="Language" data-i18n-aria-label="language" data-i18n-title="language">
-            <option value="en">EN</option>
-            <option value="zh">简中</option>
-          </select>
-        </div>
         <div class="brand">
           <div class="mark">↯</div>
           <div>
             <h1>Neon Comet Runner</h1>
-            <p class="sub" data-i18n="subtitle">Pilot a neon fighter through level waves, auto-fire upward, and crush each boss before the belt closes in.</p>
+            <p class="sub">Pilot a neon fighter through the meteor belt, auto-fire upward, and chain powerups into a huge score.</p>
           </div>
         </div>
         <div class="rules">
           <div class="rule">
             <div class="rule-icon" style="background:linear-gradient(135deg,#00d5ff,#5264ff);">✦</div>
-            <div><strong data-i18n="ruleDragTitle">Relative drag</strong><span data-i18n="ruleDragText">Touch anywhere and slide. The ship starts from where it is and never jumps under your finger.</span></div>
+            <div><strong>Relative drag</strong><span>Touch anywhere and slide. The ship starts from where it is and never jumps under your finger.</span></div>
           </div>
           <div class="rule">
             <div class="rule-icon" style="background:linear-gradient(135deg,#ff4c67,#ffb33d);">▲</div>
-            <div><strong data-i18n="ruleFireTitle">Auto fire</strong><span data-i18n="ruleFireText">Your guns fire while playing. Burn down meteor armor and boss hulls before they reach you.</span></div>
-          </div>
-          <div class="rule">
-            <div class="rule-icon" style="background:linear-gradient(135deg,#ff4c67,#ff3df2);">☄</div>
-            <div><strong data-i18n="ruleBossTitle">Levels and bosses</strong><span data-i18n="ruleBossText">Fill the level meter by surviving and blasting meteors, then fight a named boss with a full health bar.</span></div>
+            <div><strong>Auto fire</strong><span>Your guns fire while playing. Burn down meteor armor before it reaches you.</span></div>
           </div>
           <div class="rule">
             <div class="rule-icon" style="background:linear-gradient(135deg,#9dff45,#00d5ff);">⬡</div>
-            <div><strong data-i18n="rulePowerTitle">Powerups</strong><span data-i18n="rulePowerText">Collect spread, rapid, shield, magnet, and score boosts as they fall.</span></div>
+            <div><strong>Powerups</strong><span>Collect spread, rapid, shield, magnet, and score boosts as they fall.</span></div>
           </div>
           <div class="rule">
             <div class="rule-icon" style="background:linear-gradient(135deg,#ff3df2,#5264ff);">↯</div>
-            <div><strong data-i18n="ruleDashTitle">Slow dash</strong><span data-i18n="ruleDashText">Double tap or press ↯ to bend time for a short escape.</span></div>
+            <div><strong>Slow dash</strong><span>Double tap or press ↯ to bend time for a short escape.</span></div>
           </div>
         </div>
         <div class="actions">
-          <button class="primary" id="startBtn" type="button" data-i18n="launch">Launch</button>
-          <button class="secondary" id="practiceBtn" type="button" data-i18n="easyStart">Easy Start</button>
+          <button class="primary" id="startBtn" type="button">Launch</button>
+          <button class="secondary" id="practiceBtn" type="button">Easy Start</button>
         </div>
       </div>
     </section>
 
     <section class="overlay" id="pauseOverlay" hidden aria-modal="true" role="dialog">
       <div class="panel">
-        <div class="panel-tools">
-          <select class="lang-select lang-sync" id="pauseLangSelect" aria-label="Language" title="Language" data-i18n-aria-label="language" data-i18n-title="language">
-            <option value="en">EN</option>
-            <option value="zh">简中</option>
-          </select>
-        </div>
-        <h2 data-i18n="paused">Paused</h2>
-        <p class="sub" data-i18n="pauseCopy">Take a breath. Your fighter is holding orbit.</p>
+        <h2>Paused</h2>
+        <p class="sub">Take a breath. Your fighter is holding orbit.</p>
         <div class="scoreline">
-          <div class="scorebox"><span data-i18n="score">Score</span><strong id="pauseScore">0</strong></div>
-          <div class="scorebox"><span data-i18n="combo">Combo</span><strong id="pauseCombo">x1</strong></div>
-          <div class="scorebox"><span data-i18n="best">Best</span><strong id="pauseBest">0</strong></div>
+          <div class="scorebox"><span>Score</span><strong id="pauseScore">0</strong></div>
+          <div class="scorebox"><span>Combo</span><strong id="pauseCombo">x1</strong></div>
+          <div class="scorebox"><span>Best</span><strong id="pauseBest">0</strong></div>
         </div>
         <div class="actions">
-          <button class="primary" id="resumeBtn" type="button" data-i18n="resume">Resume</button>
-          <button class="secondary" id="restartPauseBtn" type="button" data-i18n="restart">Restart</button>
+          <button class="primary" id="resumeBtn" type="button">Resume</button>
+          <button class="secondary" id="restartPauseBtn" type="button">Restart</button>
         </div>
       </div>
     </section>
 
     <section class="overlay" id="gameOverOverlay" hidden aria-modal="true" role="dialog">
       <div class="panel">
-        <div class="panel-tools">
-          <select class="lang-select lang-sync" id="overLangSelect" aria-label="Language" title="Language" data-i18n-aria-label="language" data-i18n-title="language">
-            <option value="en">EN</option>
-            <option value="zh">简中</option>
-          </select>
-        </div>
-        <h2 data-i18n="runComplete">Run Complete</h2>
-        <p class="sub" id="gameOverCopy" data-i18n="gameOverDefault">The meteor belt finally clipped the glow trail.</p>
+        <h2>Run Complete</h2>
+        <p class="sub" id="gameOverCopy">The meteor belt finally clipped the glow trail.</p>
         <div class="scoreline">
-          <div class="scorebox"><span data-i18n="score">Score</span><strong id="finalScore">0</strong></div>
-          <div class="scorebox"><span data-i18n="best">Best</span><strong id="finalBest">0</strong></div>
-          <div class="scorebox"><span data-i18n="maxCombo">Max Combo</span><strong id="finalCombo">x1</strong></div>
+          <div class="scorebox"><span>Score</span><strong id="finalScore">0</strong></div>
+          <div class="scorebox"><span>Best</span><strong id="finalBest">0</strong></div>
+          <div class="scorebox"><span>Max Combo</span><strong id="finalCombo">x1</strong></div>
         </div>
         <div class="actions">
-          <button class="primary" id="restartBtn" type="button" data-i18n="runAgain">Run Again</button>
-          <button class="secondary" id="menuBtn" type="button" data-i18n="menu">Menu</button>
+          <button class="primary" id="restartBtn" type="button">Run Again</button>
+          <button class="secondary" id="menuBtn" type="button">Menu</button>
         </div>
       </div>
     </section>
@@ -792,12 +642,10 @@
       const dashLabel = document.getElementById("dashLabel");
       const pauseBtn = document.getElementById("pauseBtn");
       const powerHud = document.getElementById("powerHud");
-      const bossHud = document.getElementById("bossHud");
       const flash = document.getElementById("flash");
       const startOverlay = document.getElementById("startOverlay");
       const pauseOverlay = document.getElementById("pauseOverlay");
       const gameOverOverlay = document.getElementById("gameOverOverlay");
-      const langSelects = Array.from(document.querySelectorAll(".lang-select"));
 
       const ui = {
         startBtn: document.getElementById("startBtn"),
@@ -812,196 +660,21 @@
         finalScore: document.getElementById("finalScore"),
         finalBest: document.getElementById("finalBest"),
         finalCombo: document.getElementById("finalCombo"),
-        gameOverCopy: document.getElementById("gameOverCopy"),
-        levelText: document.getElementById("levelText"),
-        levelProgressText: document.getElementById("levelProgressText"),
-        levelProgressFill: document.getElementById("levelProgressFill"),
-        bossName: document.getElementById("bossName"),
-        bossHpText: document.getElementById("bossHpText"),
-        bossHpFill: document.getElementById("bossHpFill")
+        gameOverCopy: document.getElementById("gameOverCopy")
       };
 
       const storageKey = "neon-comet-runner-best";
-      const langStorageKey = "neon-comet-runner-language";
-      const i18n = {
-        en: {
-          ariaGame: "Neon Comet Runner game",
-          ariaStatus: "Game status",
-          ariaBoss: "Boss status",
-          ariaPowers: "Active powerups",
-          language: "Language",
-          score: "Score",
-          combo: "Combo",
-          best: "Best",
-          level: "Level",
-          maxCombo: "Max Combo",
-          pause: "Pause",
-          pauseGame: "Pause game",
-          resumeGame: "Resume game",
-          dash: "Dash",
-          dashAction: "Activate slow motion dash",
-          dashReady: "Dash ready",
-          subtitle: "Pilot a neon fighter through level waves, auto-fire upward, and crush each boss before the belt closes in.",
-          ruleDragTitle: "Relative drag",
-          ruleDragText: "Touch anywhere and slide. The ship starts from where it is and never jumps under your finger.",
-          ruleFireTitle: "Auto fire",
-          ruleFireText: "Your guns fire while playing. Burn down meteor armor and boss hulls before they reach you.",
-          ruleBossTitle: "Levels and bosses",
-          ruleBossText: "Fill the level meter by surviving and blasting meteors, then fight a named boss with a full health bar.",
-          rulePowerTitle: "Powerups",
-          rulePowerText: "Collect spread, rapid, shield, magnet, and score boosts as they fall.",
-          ruleDashTitle: "Slow dash",
-          ruleDashText: "Double tap or press ↯ to bend time for a short escape.",
-          launch: "Launch",
-          easyStart: "Easy Start",
-          paused: "Paused",
-          pauseCopy: "Take a breath. Your fighter is holding orbit.",
-          resume: "Resume",
-          restart: "Restart",
-          runComplete: "Run Complete",
-          gameOverDefault: "The meteor belt finally clipped the glow trail.",
-          gameOverNewBest: "New best run. The fighter burned bright through the belt.",
-          gameOverRetry: "The meteor belt clipped the fighter. Launch again for a cleaner line.",
-          runAgain: "Run Again",
-          menu: "Menu",
-          boss: "Boss",
-          clear: "CLEAR",
-          levelLabel: (level) => `L${level}`,
-          levelBossFloater: (level) => `LEVEL ${level} BOSS`,
-          levelFloater: (level) => `LEVEL ${level}`,
-          tipIntro: "Touch anywhere and slide. Your fighter moves from its current position and auto-fires.",
-          tipRunStart: "Level 1 wave. Fill the meter, then burn down the boss.",
-          tipLevelClear: (level) => `Level ${level} clear. Grab the reward and brace for the next wave.`,
-          tipBoss: (name) => `${name} is exposed. Focus fire and dodge the neon shots.`,
-          tipSlow: "Slow dash active. Slide through danger while time bends.",
-          tipMagnet: "Magnet is pulling shards and powerups into your fighter.",
-          tipWeapons: "Weapons boosted. Keep the stream centered on high-HP meteors.",
-          tipCombo: "Combo is hot. Keep shooting, collecting, and grazing danger.",
-          tipWave: (level) => `Level ${level} wave. Fill the meter, then challenge the boss.`,
-          floatDash: "+dash",
-          floatBossClear: "+boss clear",
-          floatBlast: "+blast",
-          floatPhase: "+phase",
-          floatClose: "+close",
-          floatCombo: "+combo",
-          powerNames: {
-            spread: "Spread",
-            rapid: "Rapid",
-            shield: "Shield",
-            magnet: "Magnet",
-            score: "Score x2"
-          },
-          powerShort: {
-            spread: "SPD",
-            rapid: "RPD",
-            shield: "SHD",
-            magnet: "MAG",
-            score: "X2"
-          },
-          bosses: [
-            "Comet Warden",
-            "Ion Leviathan",
-            "Nova Breaker",
-            "Pulse Tyrant",
-            "Astra Maw"
-          ]
-        },
-        zh: {
-          ariaGame: "Neon Comet Runner 游戏",
-          ariaStatus: "游戏状态",
-          ariaBoss: "Boss 状态",
-          ariaPowers: "激活中的强化",
-          language: "语言",
-          score: "分数",
-          combo: "连击",
-          best: "最佳",
-          level: "关卡",
-          maxCombo: "最高连击",
-          pause: "暂停",
-          pauseGame: "暂停游戏",
-          resumeGame: "继续游戏",
-          dash: "冲刺",
-          dashAction: "启动慢动作冲刺",
-          dashReady: "冲刺就绪",
-          subtitle: "驾驶霓虹战机穿越关卡波次，自动向上开火，在星带逼近前击破每个 Boss。",
-          ruleDragTitle: "相对拖动",
-          ruleDragText: "任意位置触摸并滑动。战机会从当前位置移动，不会跳到手指下方。",
-          ruleFireTitle: "自动开火",
-          ruleFireText: "游戏中武器会自动射击。先击穿陨石护甲和 Boss 外壳，别让它们贴近。",
-          ruleBossTitle: "关卡与 Boss",
-          ruleBossText: "生存并击碎陨石来填满关卡进度，然后迎战带完整血条的具名 Boss。",
-          rulePowerTitle: "强化道具",
-          rulePowerText: "收集下落的散射、急速、护盾、磁吸和双倍分数强化。",
-          ruleDashTitle: "慢动作冲刺",
-          ruleDashText: "双击或按 ↯ 短暂扭曲时间，脱离危险。",
-          launch: "发射",
-          easyStart: "轻松开始",
-          paused: "已暂停",
-          pauseCopy: "喘口气。战机正在轨道中待命。",
-          resume: "继续",
-          restart: "重开",
-          runComplete: "本轮结束",
-          gameOverDefault: "陨石带最终截断了光轨。",
-          gameOverNewBest: "新的最佳纪录。战机在星带中烧出了更亮的航线。",
-          gameOverRetry: "战机被陨石带擦中。再次发射，跑出更干净的路线。",
-          runAgain: "再跑一次",
-          menu: "菜单",
-          boss: "Boss",
-          clear: "已清除",
-          levelLabel: (level) => `${level}关`,
-          levelBossFloater: (level) => `第 ${level} 关 Boss`,
-          levelFloater: (level) => `第 ${level} 关`,
-          tipIntro: "任意位置触摸并滑动。战机会从当前位置移动，并自动开火。",
-          tipRunStart: "第 1 关波次。填满进度条，然后击穿 Boss。",
-          tipLevelClear: (level) => `第 ${level} 关已清除。收下奖励，准备下一波。`,
-          tipBoss: (name) => `${name} 已暴露。集中火力，躲开霓虹弹幕。`,
-          tipSlow: "慢动作冲刺已启动。趁时间弯折时穿过危险。",
-          tipMagnet: "磁吸正在把碎片和强化拉向战机。",
-          tipWeapons: "武器已强化。让弹流持续命中高血量陨石。",
-          tipCombo: "连击正热。继续射击、收集，并擦身掠过危险。",
-          tipWave: (level) => `第 ${level} 关波次。填满进度条，然后挑战 Boss。`,
-          floatDash: "+冲刺",
-          floatBossClear: "+Boss 清除",
-          floatBlast: "+击碎",
-          floatPhase: "+穿越",
-          floatClose: "+擦身",
-          floatCombo: "+连击",
-          powerNames: {
-            spread: "散射",
-            rapid: "急速",
-            shield: "护盾",
-            magnet: "磁吸",
-            score: "分数 x2"
-          },
-          powerShort: {
-            spread: "散",
-            rapid: "速",
-            shield: "盾",
-            magnet: "磁",
-            score: "X2"
-          },
-          bosses: [
-            "彗星守卫",
-            "离子巨兽",
-            "新星破坏者",
-            "脉冲暴君",
-            "星渊巨口"
-          ]
-        }
-      };
-      let currentLang = readLanguage();
-      let lastGameOverKey = "gameOverDefault";
       const rand = (min, max) => min + Math.random() * (max - min);
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
       const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
       const lerp = (a, b, t) => a + (b - a) * t;
 
       const powerTypes = {
-        spread: { icon: "W", color: "#ff3df2", duration: 10 },
-        rapid: { icon: "R", color: "#00d5ff", duration: 8 },
-        shield: { icon: "O", color: "#9dff45", duration: 7 },
-        magnet: { icon: "M", color: "#ffb33d", duration: 9 },
-        score: { icon: "2", color: "#5264ff", duration: 10 }
+        spread: { name: "Spread", short: "SPD", icon: "W", color: "#ff3df2", duration: 10 },
+        rapid: { name: "Rapid", short: "RPD", icon: "R", color: "#00d5ff", duration: 8 },
+        shield: { name: "Shield", short: "SHD", icon: "O", color: "#9dff45", duration: 7 },
+        magnet: { name: "Magnet", short: "MAG", icon: "M", color: "#ffb33d", duration: 9 },
+        score: { name: "Score x2", short: "X2", icon: "2", color: "#5264ff", duration: 10 }
       };
 
       const state = {
@@ -1018,13 +691,6 @@
         comboTimer: 0,
         difficulty: 1,
         practice: false,
-        level: 1,
-        levelProgress: 0,
-        phase: "wave",
-        boss: null,
-        bossDefeats: 0,
-        bossDelay: 0,
-        bossProjectiles: [],
         meteorTimer: 0,
         shardTimer: 0,
         powerupTimer: 0,
@@ -1081,76 +747,6 @@
         return true;
       }
 
-      function readLanguage() {
-        try {
-          const saved = localStorage.getItem(langStorageKey);
-          if (saved === "en" || saved === "zh") return saved;
-        } catch (error) {
-          return "en";
-        }
-        const browserLang = (navigator.language || "").toLowerCase();
-        return browserLang.startsWith("zh") ? "zh" : "en";
-      }
-
-      function saveLanguage(lang) {
-        try {
-          localStorage.setItem(langStorageKey, lang);
-        } catch (error) {
-          return false;
-        }
-        return true;
-      }
-
-      function t(key, ...args) {
-        const value = i18n[currentLang][key] ?? i18n.en[key] ?? key;
-        return typeof value === "function" ? value(...args) : value;
-      }
-
-      function powerName(type) {
-        return i18n[currentLang].powerNames[type] || i18n.en.powerNames[type] || type;
-      }
-
-      function powerShort(type) {
-        return i18n[currentLang].powerShort[type] || i18n.en.powerShort[type] || type.toUpperCase();
-      }
-
-      function bossName(level) {
-        const names = i18n[currentLang].bosses || i18n.en.bosses;
-        return names[(level - 1) % names.length];
-      }
-
-      function applyLanguage() {
-        document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
-        document.querySelectorAll("[data-i18n]").forEach((element) => {
-          element.textContent = t(element.dataset.i18n);
-        });
-        document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
-          element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
-        });
-        document.querySelectorAll("[data-i18n-title]").forEach((element) => {
-          element.title = t(element.dataset.i18nTitle);
-        });
-        for (const select of langSelects) {
-          select.value = currentLang;
-        }
-        pauseBtn.setAttribute("aria-label", state.mode === "paused" ? t("resumeGame") : t("pauseGame"));
-        pauseBtn.title = state.mode === "paused" ? t("resume") : t("pause");
-        ui.gameOverCopy.textContent = t(lastGameOverKey);
-        state.powerHudMarkup = "";
-        if (state.boss) {
-          state.boss.name = bossName(state.boss.level);
-        }
-        renderPowerHud();
-        updateHud();
-      }
-
-      function setLanguage(lang) {
-        if (lang !== "en" && lang !== "zh") return;
-        currentLang = lang;
-        saveLanguage(lang);
-        applyLanguage();
-      }
-
       function haptic(pattern) {
         if (navigator.vibrate) {
           navigator.vibrate(pattern);
@@ -1195,13 +791,6 @@
         state.maxCombo = 1;
         state.comboTimer = 0;
         state.difficulty = practice ? 0.72 : 1;
-        state.level = 1;
-        state.levelProgress = 0;
-        state.phase = "wave";
-        state.boss = null;
-        state.bossDefeats = 0;
-        state.bossDelay = 0;
-        state.bossProjectiles.length = 0;
         state.meteorTimer = practice ? 0.75 : 0.45;
         state.shardTimer = 1.15;
         state.powerupTimer = 3.2;
@@ -1226,11 +815,9 @@
         startOverlay.hidden = true;
         pauseOverlay.hidden = true;
         gameOverOverlay.hidden = true;
-        bossHud.hidden = true;
         pauseBtn.textContent = "Ⅱ";
-        tipText.textContent = "Level 1 wave. Fill the meter, then burn down the boss.";
+        tipText.textContent = "Touch anywhere and slide to move relatively. Guns fire automatically.";
         renderPowerHud();
-        updateHud();
         flashBurst();
         haptic(20);
       }
@@ -1313,11 +900,10 @@
 
       function spawnMeteor() {
         const margin = 28;
-        const levelBoost = Math.max(0, state.level - 1);
-        const size = rand(16, 31) + Math.min(16, state.difficulty * 1.1 + levelBoost * 1.6);
+        const size = rand(16, 31) + Math.min(12, state.difficulty * 1.2);
         const drift = rand(-34, 34) * (1 + state.difficulty * 0.04);
-        const speed = rand(150, 218) + state.difficulty * rand(17, 28) + levelBoost * 8;
-        const hp = Math.max(2, Math.round(size / 13 + state.difficulty * 0.34 + levelBoost * 0.3));
+        const speed = rand(150, 218) + state.difficulty * rand(18, 30);
+        const hp = Math.max(2, Math.round(size / 13 + state.difficulty * 0.38));
         state.meteors.push({
           x: rand(margin, state.width - margin),
           y: -size - 12,
@@ -1331,137 +917,6 @@
           maxHp: hp,
           color: Math.random() > 0.5 ? "#ff6a48" : "#ff3d77"
         });
-      }
-
-      function createBoss(level) {
-        const width = clamp(state.width * (0.3 + level * 0.018), 104, 154);
-        const height = clamp(width * 0.58, 62, 92);
-        const hp = Math.round((practiceBossHp(level) + level * 26) * (state.practice ? 0.78 : 1));
-        return {
-          name: bossNames[(level - 1) % bossNames.length],
-          level,
-          x: state.width / 2,
-          y: -height,
-          tx: state.width / 2,
-          baseY: clamp(state.height * 0.17, 88, 132),
-          w: width,
-          h: height,
-          r: width * 0.43,
-          hp,
-          maxHp: hp,
-          phaseTime: 0,
-          fireTimer: Math.max(0.9, 1.65 - level * 0.08),
-          summonTimer: Math.max(1.4, 2.65 - level * 0.08),
-          contactCooldown: 0,
-          hurt: 0,
-          dying: 0,
-          color: level % 3 === 1 ? "#ff3df2" : level % 3 === 2 ? "#00d5ff" : "#ffb33d"
-        };
-      }
-
-      function practiceBossHp(level) {
-        return 105 + level * 62 + Math.min(220, level * level * 4);
-      }
-
-      function startBossPhase() {
-        state.phase = "boss";
-        state.levelProgress = 1;
-        state.meteorTimer = 999;
-        state.boss = createBoss(state.level);
-        state.bossProjectiles.length = 0;
-        bossHud.hidden = false;
-        state.floaters.push({
-          x: state.width / 2,
-          y: Math.max(120, state.height * 0.22),
-          text: `LEVEL ${state.level} BOSS`,
-          life: 1.25,
-          max: 1.25,
-          color: "#ff3df2"
-        });
-        burst(state.width / 2, 70, 34, "#ff3df2", 170);
-        flashBurst();
-        haptic([18, 28, 18]);
-      }
-
-      function damageBoss(bullet) {
-        const boss = state.boss;
-        if (!boss || boss.dying > 0) return;
-        boss.hp -= bullet.damage;
-        boss.hurt = 0.1;
-        burst(bullet.x, bullet.y, 4, bullet.color, 75);
-        if (Math.random() < 0.35) {
-          state.particles.push({
-            x: bullet.x,
-            y: bullet.y,
-            vx: rand(-42, 42),
-            vy: rand(-24, 46),
-            r: rand(1.8, 3.8),
-            life: 0.24,
-            max: 0.24,
-            color: "#ffffff"
-          });
-        }
-        if (boss.hp <= 0) {
-          defeatBoss();
-        }
-      }
-
-      function defeatBoss() {
-        const boss = state.boss;
-        if (!boss || boss.dying > 0) return;
-        boss.hp = 0;
-        boss.dying = 1.25;
-        state.bossDefeats += 1;
-        state.bossDelay = 1.85;
-        state.bossProjectiles.length = 0;
-        state.meteors.length = 0;
-        raiseCombo(3);
-        addScore(850 + state.level * 260, boss.x, boss.y, "+boss clear");
-        burst(boss.x, boss.y, 70, boss.color, 240);
-        burst(boss.x, boss.y, 28, "#ffffff", 190);
-        spawnBossReward(boss.x, boss.y);
-        state.shake = Math.max(state.shake, 0.42);
-        flashBurst();
-        haptic([28, 35, 55]);
-      }
-
-      function spawnBossReward(x, y) {
-        const rewards = ["shield", "rapid", "spread"];
-        for (let i = 0; i < rewards.length; i += 1) {
-          const type = rewards[(state.level + i) % rewards.length];
-          const power = powerTypes[type];
-          state.powerups.push({
-            type,
-            x: clamp(x + (i - 1) * 42, 34, state.width - 34),
-            y: y + 20 + i * 6,
-            r: 15,
-            vy: rand(58, 86),
-            phase: rand(0, Math.PI * 2),
-            color: power.color
-          });
-        }
-      }
-
-      function advanceLevel() {
-        state.level += 1;
-        state.phase = "wave";
-        state.levelProgress = 0;
-        state.boss = null;
-        state.bossDelay = 0;
-        bossHud.hidden = true;
-        state.meteorTimer = Math.max(0.22, 0.7 - state.level * 0.035);
-        state.shardTimer = Math.min(state.shardTimer, 1.15);
-        state.powerupTimer = Math.min(state.powerupTimer, 4.8);
-        state.ship.shield = Math.max(state.ship.shield, 0.9);
-        state.floaters.push({
-          x: state.width / 2,
-          y: state.height * 0.28,
-          text: `LEVEL ${state.level}`,
-          life: 1.1,
-          max: 1.1,
-          color: "#00d5ff"
-        });
-        burst(state.ship.x, state.ship.y - 34, 26, "#00d5ff", 150);
       }
 
       function spawnShard() {
@@ -1571,12 +1026,6 @@
       function destroyMeteor(meteor, index) {
         state.meteors.splice(index, 1);
         raiseCombo(1);
-        if (state.phase === "wave") {
-          state.levelProgress = clamp(state.levelProgress + 0.035 + Math.min(0.018, meteor.maxHp * 0.0025), 0, 1);
-          if (state.levelProgress >= 1) {
-            startBossPhase();
-          }
-        }
         addScore(55 + meteor.maxHp * 18, meteor.x, meteor.y, "+blast");
         burst(meteor.x, meteor.y, 30, meteor.color, 180);
         burst(meteor.x, meteor.y, 12, "#ffffff", 130);
@@ -1620,7 +1069,7 @@
         const timeScale = state.slow > 0 ? 0.38 : 1;
         const scaled = dt * timeScale;
         state.elapsed += dt;
-        state.difficulty = (state.practice ? 0.72 : 1) + Math.min(6.5, state.elapsed / 22) + (state.level - 1) * 0.42;
+        state.difficulty = (state.practice ? 0.72 : 1) + Math.min(6.5, state.elapsed / 18);
         state.ship.x = lerp(state.ship.x, state.ship.tx, clamp(dt * 13, 0, 1));
         state.ship.y = lerp(state.ship.y, state.ship.ty, clamp(dt * 13, 0, 1));
         state.ship.shield = Math.max(0, state.ship.shield - dt);
@@ -1634,27 +1083,19 @@
           state.comboTimer = 1.05;
         }
 
-        state.score += dt * (7 + state.difficulty * 2.8 + state.level) * state.combo * (state.powers.scoreTimer > 0 ? 2 : 1);
+        state.score += dt * (7 + state.difficulty * 2.8) * state.combo * (state.powers.scoreTimer > 0 ? 2 : 1);
         state.meteorTimer -= scaled;
         state.shardTimer -= scaled;
         state.powerupTimer -= scaled;
         state.fireCooldown -= dt;
 
-        if (state.phase === "wave") {
-          const waveDuration = Math.max(16, (state.practice ? 18 : 22) + state.level * 2.8);
-          state.levelProgress = clamp(state.levelProgress + scaled / waveDuration, 0, 1);
-          if (state.levelProgress >= 1) {
-            startBossPhase();
-          }
-        }
-
-        if (state.phase === "wave" && state.meteorTimer <= 0) {
+        if (state.meteorTimer <= 0) {
           spawnMeteor();
-          const interval = clamp(0.82 - state.difficulty * 0.06 - state.level * 0.012, 0.24, 0.82);
+          const interval = clamp(0.82 - state.difficulty * 0.065, 0.28, 0.82);
           state.meteorTimer = interval * rand(0.74, 1.2);
           if (state.difficulty > 3.2 && Math.random() < 0.18) {
             window.setTimeout(() => {
-              if (state.mode === "playing" && state.phase === "wave") spawnMeteor();
+              if (state.mode === "playing") spawnMeteor();
             }, 90);
           }
         }
@@ -1686,8 +1127,6 @@
 
         updatePowerTimers(dt);
         updateBullets(dt);
-        updateBoss(scaled);
-        updateBossProjectiles(scaled);
         updateMeteors(scaled);
         updateShards(scaled);
         updatePowerups(scaled);
@@ -1745,140 +1184,8 @@
           }
 
           if (consumed) continue;
-          const boss = state.boss;
-          if (boss && state.phase === "boss" && boss.dying <= 0) {
-            const withinX = Math.abs(bullet.x - boss.x) < boss.w * 0.48 + bullet.r;
-            const withinY = Math.abs(bullet.y - boss.y) < boss.h * 0.5 + bullet.r;
-            if (withinX && withinY) {
-              state.bullets.splice(i, 1);
-              damageBoss(bullet);
-              consumed = true;
-            }
-          }
-
-          if (consumed) continue;
           if (bullet.life <= 0 || bullet.y < -24 || bullet.x < -36 || bullet.x > state.width + 36) {
             state.bullets.splice(i, 1);
-          }
-        }
-      }
-
-      function updateBoss(dt) {
-        const boss = state.boss;
-        if (!boss) return;
-
-        boss.phaseTime += dt;
-        boss.hurt = Math.max(0, boss.hurt - dt);
-        boss.contactCooldown = Math.max(0, boss.contactCooldown - dt);
-
-        if (boss.dying > 0 || state.bossDelay > 0) {
-          boss.dying = Math.max(0, boss.dying - dt);
-          boss.y -= boss.dying > 0 ? 16 * dt : 0;
-          if (boss.dying > 0 && Math.random() < 0.42) {
-            burst(boss.x + rand(-boss.w * 0.42, boss.w * 0.42), boss.y + rand(-boss.h * 0.35, boss.h * 0.35), 7, Math.random() > 0.45 ? boss.color : "#ffffff", 150);
-          }
-          state.bossDelay = Math.max(0, state.bossDelay - dt);
-          if (state.bossDelay <= 0) {
-            advanceLevel();
-          }
-          return;
-        }
-
-        const levelSpeed = 1 + boss.level * 0.08;
-        boss.tx = state.width / 2 + Math.sin(boss.phaseTime * 1.18 * levelSpeed) * (state.width * 0.28);
-        boss.x = lerp(boss.x, clamp(boss.tx, boss.w * 0.56, state.width - boss.w * 0.56), clamp(dt * 4.2, 0, 1));
-        boss.y = lerp(boss.y, boss.baseY + Math.sin(boss.phaseTime * 2.2) * 12, clamp(dt * 2.8, 0, 1));
-
-        boss.fireTimer -= dt;
-        if (boss.fireTimer <= 0) {
-          fireBossProjectiles(boss);
-          boss.fireTimer = Math.max(0.48, 1.35 - boss.level * 0.065) * rand(0.82, 1.15);
-        }
-
-        boss.summonTimer -= dt;
-        if (boss.summonTimer <= 0) {
-          summonBossMeteor(boss);
-          boss.summonTimer = Math.max(1.05, 2.75 - boss.level * 0.09) * rand(0.85, 1.25);
-        }
-
-        const hitRadius = boss.r * 0.72 + state.ship.r * 0.72;
-        if (dist(boss, state.ship) < hitRadius) {
-          if (state.ship.shield > 0 || state.slow > 0.04) {
-            if (boss.contactCooldown <= 0) {
-              boss.hp -= 8;
-              boss.hurt = 0.16;
-              boss.contactCooldown = 0.42;
-              state.ship.shield = Math.max(state.ship.shield, 0.25);
-              addScore(60, state.ship.x, state.ship.y - 28, "+phase");
-              burst(state.ship.x, state.ship.y - 18, 24, "#ffb33d", 160);
-              state.shake = Math.max(state.shake, 0.25);
-              if (boss.hp <= 0) defeatBoss();
-            }
-          } else {
-            endGame();
-          }
-        }
-      }
-
-      function fireBossProjectiles(boss) {
-        const shots = boss.level >= 3 ? [-0.34, 0, 0.34] : [-0.18, 0.18];
-        const baseSpeed = 168 + boss.level * 13;
-        const aim = Math.atan2(state.ship.y - boss.y, state.ship.x - boss.x);
-        for (const spread of shots) {
-          const angle = aim + spread;
-          state.bossProjectiles.push({
-            x: boss.x + Math.cos(angle) * boss.w * 0.24,
-            y: boss.y + boss.h * 0.32,
-            vx: Math.cos(angle) * baseSpeed,
-            vy: Math.sin(angle) * baseSpeed,
-            r: 8,
-            life: 4.2,
-            color: boss.color
-          });
-        }
-        burst(boss.x, boss.y + boss.h * 0.38, 10, boss.color, 110);
-      }
-
-      function summonBossMeteor(boss) {
-        const size = rand(18, 29) + Math.min(10, boss.level * 1.4);
-        const hp = Math.max(2, Math.round(size / 12 + boss.level * 0.42));
-        const side = Math.random() > 0.5 ? -1 : 1;
-        state.meteors.push({
-          x: clamp(boss.x + side * rand(boss.w * 0.28, boss.w * 0.5), size, state.width - size),
-          y: boss.y + boss.h * 0.45,
-          r: size,
-          vy: rand(140, 196) + boss.level * 10,
-          vx: side * rand(22, 56),
-          rot: rand(0, Math.PI * 2),
-          spin: rand(-2.1, 2.1),
-          scored: false,
-          hp,
-          maxHp: hp,
-          color: boss.color
-        });
-      }
-
-      function updateBossProjectiles(dt) {
-        for (let i = state.bossProjectiles.length - 1; i >= 0; i -= 1) {
-          const shot = state.bossProjectiles[i];
-          shot.x += shot.vx * dt;
-          shot.y += shot.vy * dt;
-          shot.life -= dt;
-
-          if (dist(shot, state.ship) < shot.r + state.ship.r * 0.76) {
-            if (state.ship.shield > 0 || state.slow > 0.04) {
-              state.bossProjectiles.splice(i, 1);
-              addScore(35, shot.x, shot.y, "+phase");
-              burst(shot.x, shot.y, 18, "#ffb33d", 140);
-              state.shake = Math.max(state.shake, 0.16);
-              continue;
-            }
-            endGame();
-            return;
-          }
-
-          if (shot.life <= 0 || shot.x < -36 || shot.x > state.width + 36 || shot.y > state.height + 42 || shot.y < -42) {
-            state.bossProjectiles.splice(i, 1);
           }
         }
       }
@@ -2006,9 +1313,6 @@
         if (state.bullets.length > 90) {
           state.bullets.splice(0, state.bullets.length - 90);
         }
-        if (state.bossProjectiles.length > 42) {
-          state.bossProjectiles.splice(0, state.bossProjectiles.length - 42);
-        }
         if (state.floaters.length > 18) {
           state.floaters.splice(0, state.floaters.length - 18);
         }
@@ -2018,29 +1322,12 @@
         scoreText.textContent = Math.floor(state.score).toLocaleString();
         comboText.textContent = `x${state.combo}`;
         bestText.textContent = Math.max(state.best, Math.floor(state.score)).toLocaleString();
-        const progress = Math.round(clamp(state.levelProgress, 0, 1) * 100);
-        ui.levelText.textContent = `L${state.level}`;
-        ui.levelProgressText.textContent = state.phase === "boss" ? "Boss" : `${progress}%`;
-        ui.levelProgressFill.style.width = state.phase === "boss" ? "100%" : `${progress}%`;
-        if (state.boss) {
-          const bossHp = Math.round(clamp(state.boss.hp / state.boss.maxHp, 0, 1) * 100);
-          bossHud.hidden = false;
-          ui.bossName.textContent = state.boss.name;
-          ui.bossHpText.textContent = state.boss.dying > 0 ? "CLEAR" : `${bossHp}%`;
-          ui.bossHpFill.style.width = `${bossHp}%`;
-        } else {
-          bossHud.hidden = true;
-        }
         const charge = state.dashCooldown <= 0 ? 1 : 1 - state.dashCooldown / state.dashCooldownMax;
         dashMeter.style.setProperty("--charge", `${Math.round(charge * 100)}%`);
         dashBtn.disabled = state.mode !== "playing" || state.dashCooldown > 0;
         dashLabel.textContent = state.dashCooldown <= 0 ? "Dash ready" : `${Math.ceil(state.dashCooldown)}s`;
         renderPowerHud();
-        if (state.boss && state.boss.dying > 0) {
-          tipText.textContent = `Level ${state.level} clear. Grab the reward and brace for the next wave.`;
-        } else if (state.phase === "boss" && state.boss) {
-          tipText.textContent = `${state.boss.name} is exposed. Focus fire and dodge the neon shots.`;
-        } else if (state.slow > 0) {
+        if (state.slow > 0) {
           tipText.textContent = "Slow dash active. Slide through danger while time bends.";
         } else if (state.powers.magnetTimer > 0) {
           tipText.textContent = "Magnet is pulling shards and powerups into your fighter.";
@@ -2049,7 +1336,7 @@
         } else if (state.combo > 5) {
           tipText.textContent = "Combo is hot. Keep shooting, collecting, and grazing danger.";
         } else {
-          tipText.textContent = `Level ${state.level} wave. Fill the meter, then challenge the boss.`;
+          tipText.textContent = "Touch anywhere and slide. The fighter mirrors your movement and auto-fires.";
         }
       }
 
@@ -2090,11 +1377,9 @@
         drawStars();
         drawParticles();
         drawBullets();
-        drawBossProjectiles();
         drawShards();
         drawPowerups();
         drawMeteors();
-        drawBoss();
         drawShip();
         drawFloaters();
 
@@ -2264,77 +1549,6 @@
             ctx.stroke();
             ctx.restore();
           }
-        }
-      }
-
-      function drawBoss() {
-        const boss = state.boss;
-        if (!boss) return;
-        const hurtPulse = boss.hurt > 0 ? 1 : 0;
-        const deathFade = boss.dying > 0 ? clamp(boss.dying / 1.25, 0, 1) : 1;
-
-        ctx.save();
-        ctx.globalAlpha = deathFade;
-        ctx.translate(boss.x, boss.y);
-        ctx.rotate(Math.sin(boss.phaseTime * 1.7) * 0.04);
-
-        ctx.shadowBlur = hurtPulse ? 36 : 28;
-        ctx.shadowColor = hurtPulse ? "#ffffff" : boss.color;
-        const hull = ctx.createLinearGradient(-boss.w * 0.5, -boss.h * 0.48, boss.w * 0.5, boss.h * 0.52);
-        hull.addColorStop(0, hurtPulse ? "#ffffff" : "#25164e");
-        hull.addColorStop(0.34, boss.color);
-        hull.addColorStop(0.72, "#5264ff");
-        hull.addColorStop(1, "#101735");
-        ctx.fillStyle = hull;
-        ctx.beginPath();
-        ctx.moveTo(0, -boss.h * 0.55);
-        ctx.bezierCurveTo(boss.w * 0.5, -boss.h * 0.38, boss.w * 0.58, boss.h * 0.22, boss.w * 0.12, boss.h * 0.5);
-        ctx.lineTo(0, boss.h * 0.35);
-        ctx.lineTo(-boss.w * 0.12, boss.h * 0.5);
-        ctx.bezierCurveTo(-boss.w * 0.58, boss.h * 0.22, -boss.w * 0.5, -boss.h * 0.38, 0, -boss.h * 0.55);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = "rgba(255,255,255,0.72)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = "rgba(255,255,255,0.92)";
-        ctx.beginPath();
-        ctx.arc(-boss.w * 0.18, -boss.h * 0.05, boss.h * 0.13, 0, Math.PI * 2);
-        ctx.arc(boss.w * 0.18, -boss.h * 0.05, boss.h * 0.13, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.globalAlpha = deathFade * 0.76;
-        ctx.strokeStyle = boss.color;
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = boss.color;
-        ctx.beginPath();
-        ctx.arc(0, 0, boss.r + 7 + Math.sin(state.elapsed * 5) * 3, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      function drawBossProjectiles() {
-        for (const shot of state.bossProjectiles) {
-          ctx.save();
-          ctx.translate(shot.x, shot.y);
-          ctx.shadowBlur = 18;
-          ctx.shadowColor = shot.color;
-          const orb = ctx.createRadialGradient(-3, -4, 1, 0, 0, shot.r + 4);
-          orb.addColorStop(0, "#ffffff");
-          orb.addColorStop(0.36, shot.color);
-          orb.addColorStop(1, "rgba(255,76,103,0.05)");
-          ctx.fillStyle = orb;
-          ctx.beginPath();
-          ctx.arc(0, 0, shot.r, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = "rgba(255,255,255,0.78)";
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-          ctx.restore();
         }
       }
 
