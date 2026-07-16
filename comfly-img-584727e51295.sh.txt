@@ -1,0 +1,149 @@
+#!/bin/bash
+# Comfly 中转站图片脚本 — 支持文生图 & 图片背景处理
+# Usage:
+#   ./comfly-img.sh "prompt" [output]          # 文生图
+#   ./comfly-img.sh -e image.jpg "prompt" [out] # 图片编辑/背景处理
+#   ./comfly-img.sh -g image.jpg "prompt" [out] # 带原图的 generations
+
+API_URL="https://ai.comfly.org/v1/images/generations"
+EDIT_URL="https://ai.comfly.org/v1/images/edits"
+API_KEY_B64="c2stZndHV0dhekhsb0gzQzlRZ1czVFl5Z2lUdFJrdWJINm9nd2dKTEtvZDNFZFYyUVU2"
+MODEL="gpt-image-2"
+SIZE="${COMLY_SIZE:-1024x1024}"
+N=1
+TIMEOUT=120
+
+API_KEY=$(echo "$API_KEY_B64" | base64 -d)
+
+MODE="generate"
+INPUT_IMAGE=""
+
+# Parse args
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -e|--edit)
+            MODE="edit"
+            shift
+            INPUT_IMAGE="$1"
+            shift
+            ;;
+        -g|--gen-with-img)
+            MODE="gen-with-img"
+            shift
+            INPUT_IMAGE="$1"
+            shift
+            ;;
+        *)
+            if [ -z "$PROMPT" ]; then
+                PROMPT="$1"
+            elif [ -z "$OUTPUT_FILE" ]; then
+                OUTPUT_FILE="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+PROMPT="${PROMPT:-$1}"
+OUTPUT_FILE="${OUTPUT_FILE:-comfly_output.png}"
+
+if [ -z "$PROMPT" ]; then
+    echo "用法:"
+    echo "  $0 \"提示词\" [输出文件]                        # 文生图"
+    echo "  $0 -e image.jpg \"提示词\" [输出文件]             # 编辑图片(含原图)"
+    echo "  $0 -g image.jpg \"提示词\" [输出文件]             # generations+原图"
+    exit 1
+fi
+
+echo "🎨 Comfly AI"
+echo "→ 模式: $MODE | 模型: $MODEL | 尺寸: $SIZE"
+echo "→ 提示词: $PROMPT"
+
+if [ "$MODE" = "edit" ]; then
+    # v1/images/edits: 发送原图+提示词，AI编辑替换
+    echo "→ 原图: $INPUT_IMAGE"
+    if [ ! -f "$INPUT_IMAGE" ]; then
+        echo "❌ 文件不存在: $INPUT_IMAGE"
+        exit 1
+    fi
+    echo "⏳ 处理中..."
+    RESPONSE=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$EDIT_URL" \
+        -H "Authorization: Bearer $API_KEY" \
+        -F "image=@$INPUT_IMAGE" \
+        -F "prompt=$PROMPT" \
+        -F "size=$SIZE" \
+        -F "model=$MODEL" \
+        -F "n=$N")
+elif [ "$MODE" = "gen-with-img" ]; then
+    # v1/images/generations + image base64: 在生成中加入原图参考
+    echo "→ 原图: $INPUT_IMAGE"
+    if [ ! -f "$INPUT_IMAGE" ]; then
+        echo "❌ 文件不存在: $INPUT_IMAGE"
+        exit 1
+    fi
+    echo "⏳ 编码原图..."
+    IMG_B64=$(base64 -w0 "$INPUT_IMAGE")
+    PAYLOAD=$(python3 -c "
+import json
+print(json.dumps({
+    'model': '$MODEL',
+    'prompt': '''$PROMPT''',
+    'image': '$IMG_B64',
+    'size': '$SIZE',
+    'n': $N,
+}))
+")
+    echo "⏳ 处理中..."
+    RESPONSE=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$API_URL" \
+        -H "Authorization: Bearer $API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD")
+else
+    # 普通文生图
+    echo "⏳ 生成中..."
+    RESPONSE=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$API_URL" \
+        -H "Authorization: Bearer $API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "{\"model\":\"$MODEL\",\"prompt\":\"${PROMPT//\"/\\\"}\",\"n\":$N,\"size\":\"$SIZE\"}")
+fi
+
+HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+BODY=$(echo "$RESPONSE" | sed '$d')
+
+if [ "$HTTP_CODE" != "200" ]; then
+    echo "❌ API 错误 ($HTTP_CODE):"
+    echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+    exit 1
+fi
+
+# Extract image URL
+IMAGE_URL=$(echo "$BODY" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+try:
+    print(data['data'][0]['url'])
+except (KeyError, IndexError, TypeError):
+    try:
+        print(data['data']['data'][0]['url'])
+    except:
+        print('ERROR')
+        sys.exit(1)
+")
+
+if [ -z "$IMAGE_URL" ] || [ "$IMAGE_URL" = "ERROR" ]; then
+    echo "❌ 提取图片 URL 失败"
+    echo "$BODY" | python3 -m json.tool
+    exit 1
+fi
+
+echo "✅ 下载中..."
+echo "→ $IMAGE_URL"
+
+curl -sL --max-time 60 "$IMAGE_URL" -o "$OUTPUT_FILE"
+if [ $? -eq 0 ] && [ -s "$OUTPUT_FILE" ]; then
+    SIZE_KB=$(echo "scale=1; $(stat -c%s "$OUTPUT_FILE")/1024" | bc)
+    echo "✅ 已保存: $OUTPUT_FILE (${SIZE_KB}KB)"
+else
+    echo "❌ 下载失败"
+    exit 1
+fi
